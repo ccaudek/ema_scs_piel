@@ -1,0 +1,430 @@
+---
+title: "tutorial_compassion_project"
+author: "Ilaria Colpizzi"
+date: "23/9/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Loading libraries
+
+```{r}
+  library(psych) # for describing the data
+  library(ggplot2) # for data visualization
+  library(sjPlot) # for model visualization
+  library(dplyr)
+  library(rio)
+  library(here)
+  library(purrr)
+  library(lubridate)
+  library(lme4)
+```
+
+# Data preparation and inspection
+
+## Data loading 
+
+```{r}
+dir <- here("data", "raw")
+
+file_names <- as.character(list.files(path=dir))
+n_files <- length(file_names)
+
+d_list <- list()
+
+for (index_file in 1:n_files) {
+  
+  d1  <- read.csv(here("data", "raw", file_names[index_file]), header = FALSE)
+  
+  # get subject code
+  subj_code <- d1[3, 2]
+  
+  # remove first two columns, which contain the times when the app was open and
+  # the time when the app was closed.
+  d2 <- d1[-(1:3), -c(1, 2)]
+  
+  # The responses are stored in the rows 2, 5, 8, ...
+  # index_resp is an index that select the rows with the responses.
+  index_resp <- seq(2, nrow(d2), by = 3)
+  
+  # Each row of d2 (which contains the responses to the 5 items at time t) is 
+  # saved in the j-th element of the list1 list.
+  list1 <- NULL
+  j <- 1
+  for(i in index_resp) {
+    list1[[j]] <- d2[i, ]
+    j = j+1
+  }
+  
+  # Convert to data.frame
+  df <- do.call(rbind.data.frame, list1)
+  # df <- temp %>% 
+  #   dplyr::select(!V8)
+  
+  # Change the names of the columns
+  colnames(df) <- 
+    c("context", "nervous", "upset", "satisfied", "happy", 
+      "scs_pos_1", "scs_neg_2", "scs_pos_3", "scs_neg_4", "scs_neg_5", "scs_pos_6", "scs_pos_7", "scs_neg_8")
+  # Add subj_code.
+  df$subj_code <- subj_code
+  
+  # The same for the times of the responses (rows 3, 6, 9, ...)
+  index_time <- seq(3, nrow(d2), by = 3)
+  list_time <- NULL
+  j <- 1
+  for(i in index_time) {
+    list_time[[j]] <- d2[i, ]
+    j = j+1
+  }
+df_time <- do.call(rbind.data.frame, list_time)
+  # df_time <- temp %>% 
+  #   dplyr::select(!V8)
+  
+  colnames(df_time) <- 
+    c("t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11", 
+      "t12", "t13")
+  
+  dat_time <- df_time %>% 
+    purrr::map_dfr(ymd_hms, tz = "Europe/Rome")
+  
+  # force_tz(dat_time, tzone = "GMT")
+  
+  d <- cbind(df, dat_time)
+  
+  d_list[[index_file]] <- d
+}
+```
+
+# convert list into data.frame
+
+```{r}
+mydat <- do.call(rbind.data.frame, d_list)
+
+mydat[, 1:13] <- mydat[, 1:13] %>%
+  purrr::map_dfr(as.numeric)
+```
+
+
+# Save processed data 
+
+```{r}
+saveRDS(
+  mydat,
+  here::here(
+    "data", "processed", "subj_ema_data_processed_03.01.23.RDS"
+  )
+)
+```
+
+```{r}
+mydat <- readRDS( 
+  here::here(
+    "data", "processed", "subj_ema_data_processed_03.01.23.RDS"
+  )
+  )
+```
+
+```{r}
+View(mydat)
+```
+
+```{r}
+summary(mydat)
+```
+
+```{r}
+unique(mydat$subj_code)
+```
+# ga_bu_2000_08_06_f ha scritto il codice sbaglieto anche nei questionari, per uniformare il codice diventa ga_bu_2000_08_06_000_f
+
+```{r}
+mydat$subj_code <- tolower(mydat$subj_code)
+mydat$subj_code <- forcats::fct_recode(
+  mydat$subj_code,
+  # codice corretto            codice sbagliato
+  "gr_ma_2003_01_10_460_f" = "-gr_ma_2003_01_10_460_f",
+  "se_so_2000_01_20_910_f" = "-se_so_2000_01_20_910_f",
+  "re_la_1997_08_07_327_f" = "re_la_1997_08_07_327_f-", 
+  "en_mi_1969_10_31_341_f" = "enri-→-en_mi_1969_10_31_341_f", 
+  "re_la_1997_08_07_327_f" = "re_la_1997_08_07_327_f-", 
+  "or_ca_1958_01_16_074_f" = "or_ca_1958_01_16_74_f",
+  "bi_tr_2002_07_01_356_f" = "bi_tr_2002_07_01_f",   
+  "cl_pa_2002_08_18_019_f" = "cl_pa_2002_08_019_f",  
+  "ga_vi_2002_03_10_308_m" = "ga_vi_2002_03_308_m",
+  "fr_vi_1998_02_11_212_f" = "fr_vi_1998_02_212_f",
+  "vi_co_2000_12_01_146_f" = "vi_co_2000_01_146_f",
+  "fa_sa_1998_01_08_860_f" = "fa_sa_1998_01_08_860_f ", 
+  "vi_fl_1998_10_17_074_f" = "vi_flo_1998_10_17_074_f", 
+  "ga_bu_2000_08_06_000_f" = "ga_bu_2000_08_06_f", 
+  "yu_tr_1994_05_04_676_f" = ""
+)
+unique(mydat$subj_code)
+```
+
+<!-- # Remove rows with NAs on subj_code -->
+<!-- ```{r} -->
+<!-- mydat$subj_code <- factor(mydat$subj_code) -->
+
+<!-- mydat$subj_code[mydat$subj_code == ''] = NA -->
+<!-- mydat$subj_code = droplevels(mydat$subj_code) -->
+<!-- mydat1 <- mydat[!is.na(mydat$subj_code), ] -->
+<!-- ``` -->
+
+# Remove rows with NAs on ts
+```{r}
+mydat_clean <- mydat[-which(is.na(mydat$t1)), ]
+mydat_clean1 <- mydat_clean[-which(is.na(mydat_clean$t2)), ]
+mydat_clean2 <- mydat_clean1[-which(is.na(mydat_clean1$t3)), ]
+# mydat_clean <- mydat[-which(is.na(mydat$t4)), ]
+mydat_clean3 <- mydat_clean2[-which(is.na(mydat_clean2$t5)), ]
+# mydat_clean <- mydat[-which(is.na(mydat$t6)), ]
+mydat_clean4 <- mydat_clean3[-which(is.na(mydat_clean3$t7)), ]
+# mydat_clean <- mydat[-which(is.na(mydat$t8)), ]
+# mydat_clean <- mydat[-which(is.na(mydat$t9)), ]
+# mydat_clean <- mydat[-which(is.na(mydat$t10)), ]
+# mydat_clean <- mydat[-which(is.na(mydat$t11)), ]
+# mydat_clean <- mydat[-which(is.na(mydat$t12)), ]
+df <- mydat_clean4[-which(is.na(mydat_clean4$t13)), ]
+```
+
+```{r}
+summary(df)
+```
+
+```{r}
+View(df)
+```
+
+# Date 
+
+```{r}
+df$date <- date(df$t1)
+```
+
+## Dates
+# 2022-04-02
+# 2022-04-09 
+# 2022-04-16
+# 2022-04-23
+# 2022-04-30
+# 2022-05-07
+# 2022-05-14
+# 2022-05-21
+# 2022-05-28
+# 2022-06-04
+
+```{r}
+table(df$date)
+```
+
+# Delete wrong days 
+
+```{r}
+df1 <- filter(df, !(date == "2022-03-31") & !(date == "2022-04-01")) %>%
+  filter(!(date == "2022-04-04") & !(date == "2022-04-06")) %>%
+  filter(!(date == "2022-04-07") & !(date == "2022-04-11")) %>%
+  filter(!(date == "2022-04-13") & !(date == "2022-04-14")) %>%
+  filter(!(date == "2022-04-18") & !(date == "2022-04-21")) %>%
+  filter(!(date == "2022-04-28") & !(date == "2022-05-05")) %>%
+  filter(!(date == "2022-05-12") & !(date == "2022-05-16")) %>%
+  filter(!(date == "2022-05-19") & !(date == "2022-05-26")) %>%
+  filter(!(date == "2022-06-02") & !(date == "2022-06-11"))
+```
+
+```{r}
+summary(df1)
+```
+
+```{r}
+df1$date <- factor(df1$date)
+df1$day <- forcats::fct_recode(
+  df1$date,
+  "1" = "2022-04-02",
+  "2" = "2022-04-09", 
+  "3" = "2022-04-16", 
+  "4" = "2022-04-23", 
+  "5" = "2022-04-30", 
+  "6" = "2022-05-07", 
+  "7" = "2022-05-14", 
+  "8" = "2022-05-21",
+  "9" = "2022-05-28", 
+  "10" = "2022-06-04"
+)
+```
+
+# in che formato sono stampati i dati? 
+# 24 ore 
+# time windows: 
+# 10:00-10:30, 8:00-8:30   8:00-8:30 AM 10:00-10:30 AM
+# 15:00-15:30, 13:00-13:30 1:00-1:30 PM 3:00-3:30 PM
+# 17:00-17:30, 15:00-15:30 3:00-3:30 PM 5:00-5:30 PM
+# 19:00-19:30, 17:00-17:30 5:00-5:30 PM 7:00-7:30 PM
+# 21:00-21:30  19:00-19:30 7:00-7:30 PM 9:00-9:30 PM
+
+```{r}
+out <- df1 %>%
+  group_by(subj_code) %>%
+  summarise(
+    max_time = max(t1)
+  )
+
+sort(out$max_time)
+```
+
+# sommare alle date americane +12, per ogni colonna
+# mettiamo una soglia 
+# TODO: trasformare gli orari in formato europeo, e finire la codifica dei dati. Inviare il tutto alla laureanda per correzione codici. 
+
+<!-- ```{r} -->
+<!-- df1$t1_new <- as.POSIXct(df1$t1,"America/Los_Angeles") -->
+<!-- cbind(US=format(df1$t1),UK=format(df1$t1,tz="Europe/London")) -->
+<!-- ``` -->
+
+# Determine the time window of each administration. The function hour() returns
+# the number of the hour minus 2 (so, I summed + 2)
+
+# 10:00-10:30
+# 15:00-15:30
+# 17:00-17:30
+# 19:00-19:30
+# 21:00-21:30
+
+# lanciando questo comando risultano 55 rilevazioni con time_window = 999. Infatti ci sono degli 
+# orari che non tornano. Per farli tornare ho messo il minore/uguale (<=) a tutti, stando attenta # che le finstre temporali non si sovrapponessero. 
+# Così risultano solo 3, 999, che elimino dopo perchè non collocabili in nessuna finstra temporale. 
+
+```{r}
+time_window <- rep(NA, length(df1$t1))
+for(i in 1:length(df1$t1)){
+  if (hour(df1$t1)[i] < 12) {
+    time_window[i] <- 1
+  } else if ((hour(df1$t1)[i] > 14) & (hour(df1$t1)[i] <= 16)) {
+    time_window[i] <- 2
+  } else if ((hour(df1$t1)[i] > 16) & (hour(df1$t1)[i] <= 18)) {
+    time_window[i] <- 3
+  } else if ((hour(df1$t1)[i] > 18) & (hour(df1$t1)[i] <= 20)) {
+    time_window[i] <- 4
+  } else if ((hour(df1$t1)[i] > 20) & (hour(df1$t1)[i] <= 22)) {
+    time_window[i] <- 5
+  }  else {
+    time_window[i] <- 999
+  }
+  # print(i)
+}
+```
+
+```{r}
+df1$time_window <- time_window
+```
+
+```{r}
+df2 <- filter(df1, !(time_window == "999"))
+```
+
+```{r}
+table(df2$time_window)
+```
+
+### convert subj_code from string to number 
+
+```{r}
+grpid = function(x) match(x, unique(x))
+  df3 <- df2 %>% 
+    mutate(id = group_indices(., subj_code) %>% grpid)
+```
+
+# id = 325
+# siamo partiti da un totale di 332 soggetti. Con il preprocessing abbiamo perso 7 soggetti. 
+
+# siamo partiti con 12692 osservazioni. Con il preprocessing siamo arrivati a 12582 osservazioni.
+# ne abbiamo perse 110. 
+
+```{r}
+good_cols <- c(
+  "id", "subj_code", "day", "date", "time_window", "context", "nervous", "upset", "satisfied", "happy", "scs_pos_1", "scs_neg_2", "scs_pos_3", "scs_neg_4", "scs_neg_5", "scs_pos_6", "scs_pos_7", "scs_neg_8")
+```
+
+```{r}
+df4 <- df3 %>% 
+  dplyr::select(all_of(good_cols))
+
+thedat <- df4 %>% 
+  mutate_if(is.numeric, round)
+```
+
+```{r}
+saveRDS(
+  thedat,
+  here::here(
+    "data", "processed", "subj_ema_data_processed_tot_325.RDS"
+  )
+)
+```
+
+## Data inspection 
+
+```{r}
+str(thedat)
+
+describe(thedat)
+
+```
+
+### read data 
+
+```{r}
+mydat2 <- readRDS(
+  here::here(
+    "data", "processed", "subj_ema_data_processed_tot_325.RDS"
+  )
+)
+```
+
+## separate positive self-compassion and negative self-compassion: 
+# 10 days, 5 beeps, 324 people. 
+
+```{r}
+mydat2$scs_pos_tot <- (mydat2$scs_pos_1 + mydat2$scs_pos_6 + mydat2$scs_pos_3 +
+                              mydat2$scs_pos_7)
+```
+
+```{r}
+hist(mydat2$scs_pos_tot)
+hist(mydat2$scs_neg_tot)
+```
+
+
+```{r}
+mydat2$scs_neg_tot <- (mydat2$scs_neg_2 + mydat2$scs_neg_4 + mydat2$scs_neg_5 +
+                              mydat2$scs_neg_8)
+```
+
+```{r}
+mydat2 %>% 
+  group_by(nervous, time_window, context) %>%
+  summarise(
+    scs_positive = mean(scs_pos_tot), 
+    scs_negative = mean(scs_neg_tot)
+  )
+```
+
+
+```{r}
+fm <- lmer(I(scs_neg_tot-mean(scs_neg_tot)) ~ upset*time_window*context + (1+time_window+context|subj_code), 
+     data = mydat2)
+```
+
+```{r}
+summary(fm)
+```
+
+
+
+
+
+
+
+
