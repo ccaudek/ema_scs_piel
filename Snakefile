@@ -80,9 +80,4 @@ rule wrangling_ema_data:
         "workflows/scripts/ema/data_wrangling.R"
 
 
-rule clean_logs:
-    output:
-        touch("log/.cleanup_success"),
-
-
 include: "workflows/rules/closing_messages.smk"
