@@ -1,0 +1,4 @@
+WorkflowError in file /Users/corrado/_repositories/ema_scs_piel/Snakefile, line 69:
+Failed to open source file /Users/corrado/_repositories/ema_scs_piel/workflows/rules/closing_messages.smk
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/corrado/_repositories/ema_scs_piel/workflows/rules/closing_messages.smk'
+  File "/Users/corrado/_repositories/ema_scs_piel/Snakefile", line 69, in <module>

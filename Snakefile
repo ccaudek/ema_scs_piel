@@ -51,119 +51,38 @@ Renv = "workflows/envs/environment_R.yaml"
 # Run all analyses
 rule all:
     input:
-        os.path.join(prepdir, "groundhog_raw.RDS"),
-        os.path.join(prepdir, "groundhog_clean.RDS"),
-        # os.path.join(prepdir, "groundhog_hddmrl_data.csv"),
-        # os.path.join(brmsdir, "fitted_models", "brms_moodpre_1.RDS"),
-        # os.path.join(brmsdir, "tables", "brms_moodpre_1.csv"),
-        "workflows/report/control_report.html",
-        os.path.join(prepdir, "quest.csv"),
-        os.path.join(prepdir, "quest_scales", "rosenberg_scores.csv"),
-        "data/my_test.csv",
+        # os.path.join(prepdir, "groundhog_raw.RDS"),
+        # config["ema_data_raw"],
+        config["ema_data_clean"],
 
 
-# Read individual PRL files and create a single file
-# with all subjects' raw data.
-rule read_data:
+# Read individual EMA data and save an RDS file.
+rule read_ema_data:
     input:
-        xlsx=config["excel_codes"],
-        dir_data=config["data_dir"],
+        dir_data=config["ema_data_dir"],
     output:
-        rds=config["complete_data_raw"],
+        rds=config["ema_data_raw"],
     log:
         "logs/read_data.log",
     script:
-        "workflows/scripts/import_mpath_data.R"
+        "workflows/scripts/ema/import_ema_data.R"
 
 
-# Data cleaning.
-rule data_wrangling:
+# Initial data wrangling.
+rule wrangling_ema_data:
     input:
-        rds=config["complete_data_raw"],
+        rds=config["ema_data_raw"],
     output:
-        clean=config["cleaned_data"],
+        rds=config["ema_data_clean"],
     log:
-        "logs/data_wrangling.log",
+        "logs/wangling_ema_data.log",
     script:
-        "workflows/scripts/data_wrangling.R"
+        "workflows/scripts/ema/data_wrangling.R"
 
 
-# Effect of control on mood_pre.
-rule moodpre_tilda_control:
-    input:
-        clean=config["cleaned_data"],
+rule clean_logs:
     output:
-        fit=config["brms_fit_1"],
-        csv=config["brms_table_1"],
-    log:
-        "logs/moodpre_tilda_control.log",
-    script:
-        "workflows/scripts/brms_moodpre_control.R"
-
-
-rule control_report:
-    input:
-        clean=config["cleaned_data"],
-    output:
-        "workflows/report/control_report.html",
-    script:
-        "workflows/scripts/control.Rmd"
-
-
-# Write input file for HDDMrl.
-rule data_for_hddmrl:
-    input:
-        clean=config["cleaned_data"],
-    output:
-        hddmrl=config["hddmrl_data"],
-    log:
-        "logs/data_for_hddmrl.log",
-    script:
-        "workflows/scripts/hddmrl_data.R"
-        # config["hddmrl_data"]
-
-
-rule import_quest_data:
-    input:
-        q1=config["quest1"],
-        q2=config["quest2"],
-        q3=config["quest3"],
-        q4=config["quest4"],
-    output:
-        csv=os.path.join(prepdir, "quest.csv"),
-    log:
-        "logs/import_quest_data.log",
-    script:
-        # "workflows/scripts/import_quest_data.R"
-        config["import_quest_data"]
-
-
-# Rosenberg Self Esteem Scale
-rule select_cols_rosenberg:
-    input:
-        quest=os.path.join(prepdir, "quest.csv"),
-    output:
-        csv=os.path.join(prepdir, "quest_scales", "rosenberg_items.csv"),
-    log:
-        "logs/select_cols_rosenberg.log",
-    script:
-        # "workflows/scripts/select_rows_rosenberg.R"
-        os.path.join(scriptsdir, "select_cols_rosenberg.R")
-
-
-rule scoring_rosenberg:
-    input:
-        ros=os.path.join(prepdir, "quest_scales", "rosenberg_items.csv"),
-    output:
-        csv=os.path.join(prepdir, "quest_scales", "rosenberg_scores.csv"),
-    log:
-        "logs/scoring_rosenberg.log",
-    script:
-        os.path.join(scriptsdir, "scoring_rosenberg.R")
-
-
-# include: "workflows/rules/rosenberg.smk"
+        touch("log/.cleanup_success"),
 
 
 include: "workflows/rules/closing_messages.smk"
-include: "workflows/rules/my_test.smk"
