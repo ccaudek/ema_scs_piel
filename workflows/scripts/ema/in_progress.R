@@ -90,12 +90,12 @@ d$psc_c <- d$psc - mean(d$psc)
 d$nsc_c <- d$nsc - mean(d$nsc)
 
 m1 <- lmer(
-  psc_c ~ context_c * neg_aff_c +
+  psc_c ~ context_c + neg_aff_c +
     (1 + context_c + neg_aff_c | user_id) +
     (1 | user_id:day) +
-    (1 
-     | user_id:day:time_window),
-  data = d
+    (1 | user_id:day:time_window),
+  data = d,
+  control = strict_control
 )
 
 #' (1 + context + neg_aff | user_id): This specifies the random effects
@@ -112,10 +112,8 @@ m1 <- lmer(
 #' and time windows.
 
 m1x <- lmer(
-  psc_c ~ context_c * neg_aff_c +
-    (1 + context_c + neg_aff_c | user_id) +
-    (1 | day) +
-    (1 | time_window),
+  psc_c ~ context_c + neg_aff_c +
+    (1 + context_c + neg_aff_c | user_id),
   data = d
 )
 
