@@ -20,10 +20,12 @@ d <- d |>
     neg_aff = upset + nervous - satisfied - happy,
     psc = scs_pos_1 + scs_pos_3 + scs_pos_6 + scs_pos_7,
     nsc = scs_neg_2 + scs_neg_4 + scs_neg_5 + scs_neg_8
-  ) |>
-  dplyr::rename(user_id = subj_code)
+  ) 
 
 cor(d$psc, d$nsc)
+
+d$bysubj_day_f <- factor(d$bysubj_day)
+d$time_window_f <- factor(d$time_window)
 
 #' The ICC is a measure of the proportion of variance that is between people
 #' versus the total variance (i.e., variance between people and variance
@@ -42,7 +44,7 @@ cor(d$psc, d$nsc)
 #' day and the 10-days of the study.
 
 iccMixed(
-  dv = "neg_aff",
+  dv = "nsc",
   id = "user_id",
   data = d
 )
@@ -84,19 +86,60 @@ strict_control <- lmerControl(optCtrl = list(
   ftol_abs = 1e-12
 ))
 
-d$context_c <- d$context - mean(d$context)
-d$neg_aff_c <- d$neg_aff - mean(d$neg_aff)
 d$psc_c <- d$psc - mean(d$psc)
 d$nsc_c <- d$nsc - mean(d$nsc)
 
-m1 <- lmer(
-  psc_c ~ context_c + neg_aff_c +
-    (1 + context_c + neg_aff_c | user_id) +
-    (1 | user_id:day) +
-    (1 | user_id:day:time_window),
+
+
+scl90_df <- rio::import(
+  here::here(
+    "data", "prep", "quest_scales", "scl90_scores.csv"
+  )
+)
+
+temp <- left_join(d, scl90_df, by="user_id")
+
+mod <- lmer(
+  psc_c ~ (scl90_somatization + scl90_osbsess_comp + scl90_interp_sens +
+    scl90_depression + scl90_anxiety + scl90_anger_hostility +
+    scl90_phobic_anxiety + scl90_paranoid_ideation +
+    scl90_psychoticism + scl90_psychoticism + scl90_sleep_disorder) +
+    neg_aff + context +
+    (1 + context + neg_aff | user_id),
+  data = temp,
+  control = strict_control
+)
+
+
+MuMIn::r.squaredGLMM(mod)
+
+
+m2 <- lmer(
+  psc_c ~ context + neg_aff +
+    (1 + context + neg_aff | user_id) +
+    (1 | user_id:bysubj_day_f) +
+    (1 | user_id:bysubj_day_f:time_window_f),
   data = d,
   control = strict_control
 )
+
+
+d$id <- as.numeric(factor(as.character(d$user_id)))
+temp <- d[d$id < 21, ] 
+
+mod1 <- lmer(
+  psc_c ~ 1 + neg_aff + time_window_f + day_f +
+    (1 + neg_aff + time_window_f + day_f | user_id),
+  data = temp
+)
+
+mod1 <- lmer(
+  psc_c ~ context + neg_aff +
+    (1 + context + neg_aff | user_id) + (context + neg_aff | day_f) +
+    (context + neg_aff | time_window_f),
+  data = d
+)
+
 
 #' (1 + context + neg_aff | user_id): This specifies the random effects
 #' part of the model formula. It includes random intercepts (1) and random
@@ -111,11 +154,74 @@ m1 <- lmer(
 #' of repeated measurements within the same subject across different days
 #' and time windows.
 
-m1x <- lmer(
-  psc_c ~ context_c + neg_aff_c +
-    (1 + context_c + neg_aff_c | user_id),
-  data = d
+bmod_1 <- brm(
+  prior = c(
+    prior(normal(0, 2), class = b)
+  ),
+  psc_c ~ context * neg_aff +
+    (1 + context + neg_aff | user_id) +
+    (1 | user_id:day_f) +
+    (1 | user_id:day_f:time_window_f),
+  data = d,
+  init = 0.1,
+  # algorithm = "meanfield" # do not use cmdstan
+  backend = "cmdstanr"
 )
+
+pp_check(bmod_1)
+summary(bmod_1)
+conditional_effects(bmod_1, "context")
+conditional_effects(bmod_1, "neg_aff")
+
+delta_t <-
+  # extracting posterior samples from bmod5
+  posterior_samples(bmod_1, pars = c("^b_", "sd_", "sigma")) %>% # taking the square of each variance component
+  mutate_at(.vars = 5:8, .funs = funs(.^2) ) %>%
+  # dividing the slope estimate by the square root of the sum of # all variance components
+  mutate(delta = b_context / sqrt(rowSums(.[5:8]) ) )
+
+c(
+  quantile(delta_t$delta, .025),
+  mean(delta_t$delta),
+  quantile(delta_t$delta, .975)
+)
+#       2.5%                 97.5% 
+# 0.02126986 0.04448138 0.06912467 
+
+delta_t <-
+  # extracting posterior samples from bmod5
+  posterior_samples(bmod_1, pars = c("^b_", "sd_", "sigma")) %>% # taking the square of each variance component
+  mutate_at(.vars = 5:8, .funs = funs(.^2) ) %>%
+  # dividing the slope estimate by the square root of the sum of # all variance components
+  mutate(delta = b_neg_aff / sqrt(rowSums(.[5:8]) ) )
+
+c(
+  quantile(delta_t$delta, .025),
+  mean(delta_t$delta),
+  quantile(delta_t$delta, .975)
+)
+#       2.5%                 97.5% 
+# -0.1566128 -0.1442089 -0.1317828 
+
+
+# bmod_1 <- brm(
+#   prior = c(
+#     prior(normal(0, 2), class = b)
+#   ),
+#   psc_c ~ context * neg_aff +
+#     (1 + context + neg_aff | user_id) +
+#     (1 | user_id:day) +
+#     (1 | user_id:day:time_window),
+#   data = d,
+#   # algorithm = "meanfield" # do not use cmdstan
+#   backend = "cmdstanr"
+# )
+
+conditional_effects(bmod_2, "context")
+conditional_effects(bmod_2, "neg_aff")
+bayes_R2(bmod_2)
+
+m1x <- lm(psc ~ neg_aff, data = d)
 
 md <- modelDiagnostics(m1x, ev.perc = .001)
 plot(md, ask = FALSE, nrow = 4, ncol = 3)
@@ -146,6 +252,35 @@ plot(md, ask = FALSE, ncol = 4, nrow = 3)
 modelPerformance(m1a)
 
 summary(m1a)
+
+
+bmod_2 <- brm(
+  prior = c(
+    prior(normal(0, 2), class = b)
+  ),
+  nsc_c ~ context * neg_aff +
+    (1 + context + neg_aff | user_id),
+  data = d,
+  init = 0.1,
+  algorithm = "meanfield" # do not use cmdstan
+  # backend = "cmdstanr"
+)
+pp_check(bmod_2)
+summary(bmod_2)
+
+delta_t <-
+  # extracting posterior samples from bmod5
+  posterior_samples(bmod_2, pars = c("^b_", "sd_", "sigma")) %>% # taking the square of each variance component
+  mutate_at(.vars = 5:8, .funs = funs(.^2) ) %>%
+  # dividing the slope estimate by the square root of the sum of # all variance components
+  mutate(delta = b_neg_aff / sqrt(rowSums(.[5:8]) ) )
+
+c(
+  quantile(delta_t$delta, .025),
+  mean(delta_t$delta),
+  quantile(delta_t$delta, .975)
+)
+
 
 m3 <- lmer(
   nsc ~ context * neg_aff +

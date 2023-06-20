@@ -63,6 +63,11 @@ rio::export(
   here::here("data", "prep", "ema", "user_id_reference.csv")
 )
 
+# Valence of the most recent salient event (-2 negative, + 2 positive)
+# Recode context to obtain: -2 -1  0  1  2
+mydat <- mydat |> 
+  mutate(context = context - 3)
+
 # Check for missing data.
 if (0) {
   # Are there missing values in the dataset?
@@ -145,19 +150,32 @@ df1$day <- forcats::fct_recode(
 # 19:00-19:30, 17:00-17:30 5:00-5:30 PM 7:00-7:30 PM
 # 21:00-21:30  19:00-19:30 7:00-7:30 PM 9:00-9:30 PM
 
+# Rank the day variable for each subject in ascending order.
+# Group by the "user_id" variable and rank the "time" column
+df1 <- df1 %>%
+  group_by(subj_code) %>%
+  mutate(bysubj_day = dense_rank(day))
+# data.frame(df1$subj_code, df1$day, df1$bysubj_day)[1:300, ]
+
 time_window <- case_when(
   hour(df1$t1) < 12 ~ 1,
   (hour(df1$t1) > 14) & (hour(df1$t1) <= 16) ~ 2,
   (hour(df1$t1) > 16) & (hour(df1$t1) <= 18) ~ 3,
   (hour(df1$t1) > 18) & (hour(df1$t1) <= 20) ~ 4,
   (hour(df1$t1) > 20) & (hour(df1$t1) <= 22) ~ 5,
-  TRUE ~ 999
+  TRUE ~ NA
 )
 df1$time_window <- time_window
 
+df1 <- df1 |> 
+  dplyr::rename(
+    "user_id" = "subj_code"
+  )
+
 good_cols <- c(
-  "subj_code",
+  "user_id",
   "day",
+  "bysubj_day",
   "date",
   "time_window",
   "context",
@@ -176,7 +194,7 @@ good_cols <- c(
 )
 
 df2 <- df1 %>%
-  dplyr::select(good_cols)
+  dplyr::select(all_of(good_cols))
 
 # Save cleaned data.
 # saveRDS(df2, here::here("data", "prep", "ema", "ema_data_2.RDS"))

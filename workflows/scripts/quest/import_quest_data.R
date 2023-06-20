@@ -35,7 +35,7 @@ user_id_q2 <- q2[, 3]
 
 # In order to correct the strings `subj_code`, compute the Levenshtein distance
 # with respect to the levels of `subj_code` in the user_id_reference.csv
-# file, which is used as reference.
+# file, which is used as reference (the reference ids are those used in the EMA).
 reference <- rio::import(
   here::here("data", "prep", "ema", "user_id_reference.csv")
 )
@@ -118,7 +118,7 @@ colnames(q2)[3] <- "user_id"
 # Keep rows with distinct IDs, because by correcting user_id, some errors were
 # introduced.
 q1 <- q1[!duplicated(q1$user_id), ]
-q2 <- q2[!duplicated(q2$user_id), ]
+q2 <- q2[!duplicated(q2$user_id), ] # eating disorders items.
 
 # Save Q1 csv file.
 rio::export(
@@ -132,4 +132,5 @@ rio::export(
 )
 
 # eof ----
+
 

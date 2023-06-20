@@ -1,6 +1,6 @@
 # Script name: import_ema_data.R
 # Project: EMA self-compassion piel
-# Script purpose: Read individual EMA data and save an RDS file.
+# Script purpose: Read individual EMA data files and save an RDS file.
 # @author: Corrado Caudek <corrado.caudek@unifi.it>
 # Date Created: Thu Jun 15 04:48:21 CEST 2023
 # Last Modified Date: Thu Jun 15 04:54:41 CEST 2023
