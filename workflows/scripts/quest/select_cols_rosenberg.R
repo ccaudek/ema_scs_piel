@@ -17,9 +17,6 @@ rosenberg_items_names <- paste0("ros_", 1:NITEMS)
 rosenberg_items_names_plus_id <- c("user_id", rosenberg_items_names)
 colnames(rosenberg_items) <- rosenberg_items_names_plus_id
 
-# Add catch item to catch_items.csv file.
-add_catch_item(d[, 3], d[, 17])
-
 # Levels to convert to numeric values
 levels_to_numeric <- c(
   "Fortemente in disaccordo" = 1,
@@ -27,6 +24,14 @@ levels_to_numeric <- c(
   "D'accordo" = 3,
   "Fortemente d'accordo" = 4
 )
+
+# Convert catch item to numeric.
+catch_item_rosenberg <- 
+  apply(data.frame(d[, 17]), 2, function(x) levels_to_numeric[x]) |> 
+  as.data.frame()
+
+# Add catch item to catch_items.csv file.
+add_catch_item(d[, 3], catch_item_rosenberg)
 
 temp <- rosenberg_items[, 2:11]
 

@@ -17,9 +17,6 @@ ders_items_names_plus_id <- c("user_id", ders_items_names)
 
 colnames(ders_items) <- ders_items_names_plus_id
 
-# Add catch item to catch_items.csv file.
-add_catch_item(d[, 3], d[, 132])
-
 # Define the levels you want to convert to numeric values
 levels_to_numeric <- c(
   "Quasi mai" = 1,
@@ -28,6 +25,14 @@ levels_to_numeric <- c(
   "Molte volte"  = 4,
   "Quasi sempre" = 5
 )
+
+# Convert catch item to numeric.
+catch_item_ders <- 
+  apply(data.frame(d[, 132]), 2, function(x) levels_to_numeric[x]) |> 
+  as.data.frame()
+
+# Add catch item to catch_items.csv file.
+add_catch_item(d[, 3], catch_item_ders)
 
 temp <- ders_items[, 2:37]
 

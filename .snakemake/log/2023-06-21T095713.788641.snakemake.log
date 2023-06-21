@@ -1,0 +1,38 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job              count    min threads    max threads
+-------------  -------  -------------  -------------
+all                  1              1              1
+scoring_nates        1              1              1
+total                2              1              1
+
+Select jobs to execute...
+
+[Wed Jun 21 09:57:13 2023]
+rule scoring_nates:
+    input: data/prep/quest_scales/nates_items.csv
+    output: data/prep/quest_scales/nates_scores.csv
+    log: logs/scoring_nates.log
+    jobid: 5
+    reason: Updated input files: data/prep/quest_scales/nates_items.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Wed Jun 21 09:57:16 2023]
+Finished job 5.
+1 of 2 steps (50%) done
+Select jobs to execute...
+
+[Wed Jun 21 09:57:16 2023]
+localrule all:
+    input: data/prep/ema/ema_data_2.RDS, data/prep/quest_scales/quest_ema_1_prep.csv, data/prep/quest_scales/quest_ema_2_prep.csv, data/prep/quest_scales/nates_items.csv, data/prep/quest_scales/nates_scores.csv
+    jobid: 0
+    reason: Input files updated by another job: data/prep/quest_scales/nates_scores.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Wed Jun 21 09:57:16 2023]
+Finished job 0.
+2 of 2 steps (100%) done
+Complete log: .snakemake/log/2023-06-21T095713.788641.snakemake.log

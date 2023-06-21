@@ -10,12 +10,16 @@ suppressPackageStartupMessages({
   library("stringdist")
 })
 
-q1 <- rio::import(
-  here::here("data", "raw", "quest2022", "quest_ema.xlsx")
-)
-q2 <- rio::import(
-  here::here("data", "raw", "quest2022", "quest_ema2.xlsx")
-)
+# q1 <- rio::import(
+#   here::here("data", "raw", "quest2022", "quest_ema.xlsx")
+# )
+q1 <- rio::import(snakemake@input[["quest_data1"]])
+
+# q2 <- rio::import(
+#   here::here("data", "raw", "quest2022", "quest_ema2.xlsx")
+# )
+q2 <- rio::import(snakemake@input[["quest_data2"]])
+
 
 # Remove first row ("prova")
 q1 <- q1[-1, ]
@@ -121,16 +125,26 @@ q1 <- q1[!duplicated(q1$user_id), ]
 q2 <- q2[!duplicated(q2$user_id), ] # eating disorders items.
 
 # Save Q1 csv file.
+# rio::export(
+#   q1,
+#   here::here("data", "prep", "quest_scales", "quest_ema_1_prep.csv")
+# )
 rio::export(
   q1,
-  here::here("data", "prep", "quest_scales", "quest_ema_1_prep.csv")
+  snakemake@output[["quest_data1"]]
 )
+
 # Save Q2 csv file.
+# rio::export(
+#   q2,
+#   here::here("data", "prep", "quest_scales", "quest_ema_2_prep.csv")
+# )
 rio::export(
   q2,
-  here::here("data", "prep", "quest_scales", "quest_ema_2_prep.csv")
+  snakemake@output[["quest_data2"]]
 )
 
 # eof ----
+
 
 

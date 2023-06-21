@@ -7,8 +7,12 @@ suppressPackageStartupMessages({
   library("devtools")
 })
 
+# nates_items <- rio::import(
+#   here::here("data", "prep", "quest_scales", "nates_items.csv")
+# )
+
 nates_items <- rio::import(
-  here::here("data", "prep", "quest_scales", "nates_items.csv")
+  snakemake@input[["nates_cols"]]
 )
 
 # Source nates.R on GitHub, which includes the function scoring_nates().
@@ -18,9 +22,14 @@ source_url(
 
 nates_subscales <- scoring_nates(nates_items)
 
+# rio::export(
+#   nates_subscales,
+#   here::here("data", "prep", "quest_scales", "nates_scores.csv")
+# )
+
 rio::export(
   nates_subscales,
-  here::here("data", "prep", "quest_scales", "nates_scores.csv")
+  snakemake@output[["nates_score"]]
 )
 
 # eof ----

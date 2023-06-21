@@ -17,9 +17,6 @@ scl90_items_names <- paste0("scl90_", 1:NITEMS)
 scl90_items_names_plus_id <- c("user_id", scl90_items_names)
 colnames(scl90_items) <- scl90_items_names_plus_id
 
-# Add catch item to catch_items.csv file.
-add_catch_item(d[, 3], d[, 232])
-
 # Define the levels you want to convert to numeric values
 levels_to_numeric <- c(
   "Per niente" = 0,
@@ -28,6 +25,14 @@ levels_to_numeric <- c(
   "Molto" = 3,
   "Moltissimo" = 4
 )
+
+# Convert catch item to numeric values.
+catch_item_scl90 <- 
+  apply(data.frame(d[, 232]), 2, function(x) levels_to_numeric[x]) |> 
+  as.data.frame()
+
+# Add catch item to catch_items.csv file.
+add_catch_item(d[, 3], catch_item_scl90)
 
 temp <- scl90_items[, 2:91]
 

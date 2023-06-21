@@ -1,0 +1,38 @@
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                count    min threads    max threads
+---------------  -------  -------------  -------------
+all                    1              1              1
+read_quest_data        1              1              1
+total                  2              1              1
+
+Select jobs to execute...
+
+[Wed Jun 21 09:35:08 2023]
+rule read_quest_data:
+    input: data/raw/quest2022/quest_ema.xlsx, data/raw/quest2022/quest_ema2.xlsx
+    output: data/prep/quest_scales/quest_ema_1_prep.csv, data/prep/quest_scales/quest_ema_2_prep.csv
+    log: logs/read_quest_data.log
+    jobid: 3
+    reason: Code has changed since last execution
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Wed Jun 21 09:35:10 2023]
+Finished job 3.
+1 of 2 steps (50%) done
+Select jobs to execute...
+
+[Wed Jun 21 09:35:10 2023]
+localrule all:
+    input: data/prep/ema/ema_data_2.RDS, data/prep/quest_scales/quest_ema_1_prep.csv, data/prep/quest_scales/quest_ema_2_prep.csv
+    jobid: 0
+    reason: Input files updated by another job: data/prep/quest_scales/quest_ema_1_prep.csv, data/prep/quest_scales/quest_ema_2_prep.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Wed Jun 21 09:35:10 2023]
+Finished job 0.
+2 of 2 steps (100%) done
+Complete log: .snakemake/log/2023-06-21T093508.794526.snakemake.log

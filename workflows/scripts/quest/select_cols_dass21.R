@@ -18,9 +18,6 @@ dass21_items_names_plus_id <- c("user_id", dass21_items_names)
 
 colnames(dass21_items) <- dass21_items_names_plus_id
 
-# Add catch item to catch_items.csv file.
-add_catch_item(d[, 3], d[, 36])
-
 # Define the levels you want to convert to numeric values
 levels_to_numeric <- c(
   "Non mi è mai accaduto" = 0,
@@ -28,6 +25,14 @@ levels_to_numeric <- c(
   "Mi è capitato con una certa frequenza" = 2,
   "Mi è capitato quasi sempre" = 3
 )
+
+# Convert catch item to numeric values.
+catch_item_dass21 <- 
+  apply(data.frame(d[, 36]), 2, function(x) levels_to_numeric[x]) |> 
+  as.data.frame()
+
+# Add catch item to catch_items.csv file.
+add_catch_item(d[, 3], catch_item_dass21)
 
 temp <- dass21_items[, 2:22]
 

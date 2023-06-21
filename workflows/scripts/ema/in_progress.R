@@ -90,7 +90,6 @@ d$psc_c <- d$psc - mean(d$psc)
 d$nsc_c <- d$nsc - mean(d$nsc)
 
 
-
 scl90_df <- rio::import(
   here::here(
     "data", "prep", "quest_scales", "scl90_scores.csv"
@@ -98,6 +97,19 @@ scl90_df <- rio::import(
 )
 
 temp <- left_join(d, scl90_df, by="user_id")
+
+formula <- psc_c ~ (scl90_somatization + scl90_osbsess_comp + scl90_interp_sens +
+  scl90_depression + scl90_anxiety + scl90_anger_hostility +
+  scl90_phobic_anxiety + scl90_paranoid_ideation +
+  scl90_psychoticism + scl90_psychoticism + scl90_sleep_disorder) *
+  (context + neg_aff) +
+  (1 + context + neg_aff | user_id) +
+  (1 | user_id:bysubj_day) + (1 | user_id:bysubj_day:time_window)
+
+mod <- lmer(formula, data = temp, control = strict_control)
+summary(mod)
+
+
 
 mod <- lmer(
   psc_c ~ (scl90_somatization + scl90_osbsess_comp + scl90_interp_sens +
@@ -122,7 +134,6 @@ m2 <- lmer(
   data = d,
   control = strict_control
 )
-
 
 d$id <- as.numeric(factor(as.character(d$user_id)))
 temp <- d[d$id < 21, ] 
@@ -160,8 +171,8 @@ bmod_1 <- brm(
   ),
   psc_c ~ context * neg_aff +
     (1 + context + neg_aff | user_id) +
-    (1 | user_id:day_f) +
-    (1 | user_id:day_f:time_window_f),
+    (1 | user_id:bysubj_day) + 
+    (1 | user_id:bysubj_day:time_window),
   data = d,
   init = 0.1,
   # algorithm = "meanfield" # do not use cmdstan
@@ -174,7 +185,7 @@ conditional_effects(bmod_1, "context")
 conditional_effects(bmod_1, "neg_aff")
 
 delta_t <-
-  # extracting posterior samples from bmod5
+  # extracting posterior samples from bmod1
   posterior_samples(bmod_1, pars = c("^b_", "sd_", "sigma")) %>% # taking the square of each variance component
   mutate_at(.vars = 5:8, .funs = funs(.^2) ) %>%
   # dividing the slope estimate by the square root of the sum of # all variance components

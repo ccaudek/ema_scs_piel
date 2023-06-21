@@ -21,6 +21,14 @@ output_brms: results/brms
 # Path to the workflows/scripts folder. 
 scripts_dir: workflows/scripts
 
+# Path to the xlsx files with the raw questionnaire data.
+quest_data1_raw: "data/raw/quest2022/quest_ema.xlsx"
+quest_data2_raw: "data/raw/quest2022/quest_ema2.xlsx"
+
+quest_data1_clean: "data/prep/quest_scales/quest_ema_1_prep.csv"
+quest_data2_clean: "data/prep/quest_scales/quest_ema_2_prep.csv"
+
+
 # Scripts
 # hddmrl_data: "workflows/scripts/hddmrl_data.R"
 # import_quest_data: "workflows/scripts/import_quest_data.R"
