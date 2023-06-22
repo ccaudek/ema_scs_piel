@@ -74,7 +74,7 @@ rule read_ema_data:
     log:
         "logs/read_data.log",
     script:
-        "workflows/scripts/ema/import_ema_data.R"
+        "workflows/scripts/ema/piel_import_ema_data.R"
 
 
 # Initial EMA data wrangling.
