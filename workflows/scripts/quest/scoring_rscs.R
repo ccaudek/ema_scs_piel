@@ -1,4 +1,4 @@
-# Self-Compassion Scale
+# Relational Self-Compassion Scale
 
 suppressPackageStartupMessages({
   library("tidyverse")
@@ -7,20 +7,22 @@ suppressPackageStartupMessages({
   library("devtools")
 })
 
-scs_items <- rio::import(
-  here::here("data", "prep", "quest_scales", "scs_items.csv")
+rscs_items <- rio::import(
+  # here::here("data", "prep", "quest_scales", "rscs_items.csv")
+  snakemake@input[["rscs_cols"]]
 )
 
 # Source scs.R on GitHub, which includes the function scoring_scs().
 source_url(
-  "https://raw.githubusercontent.com/ccaudek/r_functions/main/scs.R"
+  "https://raw.githubusercontent.com/ccaudek/r_functions/main/rscs.R"
 )
 
-scs_subscales <- scoring_scs(scs_items)
+rscs_subscales <- scoring_rscs(rscs_items)
 
 rio::export(
-  scs_subscales,
-  here::here("data", "prep", "quest_scales", "scs_scores.csv")
+  rscs_subscales,
+  # here::here("data", "prep", "quest_scales", "rscs_scores.csv")
+  snakemake@output[["rscs_scores"]]
 )
 
 # eof ----

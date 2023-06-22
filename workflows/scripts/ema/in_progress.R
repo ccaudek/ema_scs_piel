@@ -89,7 +89,6 @@ strict_control <- lmerControl(optCtrl = list(
 d$psc_c <- d$psc - mean(d$psc)
 d$nsc_c <- d$nsc - mean(d$nsc)
 
-
 scl90_df <- rio::import(
   here::here(
     "data", "prep", "quest_scales", "scl90_scores.csv"
@@ -129,11 +128,37 @@ MuMIn::r.squaredGLMM(mod)
 m2 <- lmer(
   psc_c ~ context + neg_aff +
     (1 + context + neg_aff | user_id) +
-    (1 | user_id:bysubj_day_f) +
-    (1 | user_id:bysubj_day_f:time_window_f),
+    (1 | user_id:bysubj_day) +
+    (1 | user_id:bysubj_day:time_window),
   data = d,
   control = strict_control
 )
+MuMIn::r.squaredGLMM(m2)
+summary(m2)
+
+# Try removing bad_ids
+bad_ids <- rio::import(here("data", "prep", "ema", "bad_ids.csv"))
+
+d1 <- d |> 
+  dplyr::filter(!(user_id %in% bad_ids$bad_ids))
+
+m2a <- lmer(
+  psc_c ~ context + neg_aff +
+    (1 + context + neg_aff | user_id) +
+    (1 | user_id:bysubj_day) +
+    (1 | user_id:bysubj_day:time_window),
+  data = d1,
+  control = strict_control
+)
+MuMIn::r.squaredGLMM(m2a)
+summary(m2a)
+
+
+
+
+
+
+
 
 d$id <- as.numeric(factor(as.character(d$user_id)))
 temp <- d[d$id < 21, ] 
@@ -183,6 +208,37 @@ pp_check(bmod_1)
 summary(bmod_1)
 conditional_effects(bmod_1, "context")
 conditional_effects(bmod_1, "neg_aff")
+bayes_R2(bmod_1)
+
+
+
+bmod_1a <- brm(
+  prior = c(
+    prior(normal(0, 2), class = b)
+  ),
+  psc_c ~ context * neg_aff +
+    (1 + context + neg_aff | user_id) +
+    (1 | user_id:bysubj_day) + 
+    (1 | user_id:bysubj_day:time_window),
+  data = d,
+  init = 0.1,
+  # algorithm = "meanfield" # do not use cmdstan
+  backend = "cmdstanr"
+)
+
+pp_check(bmod_1a)
+summary(bmod_1a)
+conditional_effects(bmod_1a, "context")
+conditional_effects(bmod_1a, "neg_aff")
+bayes_R2(bmod_1a)
+
+
+
+
+
+
+
+
 
 delta_t <-
   # extracting posterior samples from bmod1

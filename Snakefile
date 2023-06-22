@@ -37,8 +37,8 @@ def getpath(str):
     return str
 
 
-print(f"Current directory: {Path.cwd()}")
-print(f"Home directory: {Path.home()}")
+# print(f"Current directory: {Path.cwd()}")
+# print(f"Home directory: {Path.home()}")
 
 prepdir = getpath(config["output_prep"])
 brmsdir = getpath(config["output_brms"])
@@ -55,11 +55,17 @@ rule all:
         config["ema_data_clean"],
         config["quest_data1_clean"],
         config["quest_data2_clean"],
-        "data/prep/quest_scales/nates_items.csv",
         "data/prep/quest_scales/nates_scores.csv",
+        "data/prep/quest_scales/dass21_scores.csv",
+        "data/prep/quest_scales/ders_scores.csv",
+        "data/prep/quest_scales/neoffi60_neuro_scores.csv",
+        "data/prep/quest_scales/rosenberg_scores.csv",
+        "data/prep/quest_scales/rscs_scores.csv",
+        "data/prep/quest_scales/scl90_scores.csv",
+        "data/prep/quest_scales/scs_scores.csv",
 
 
-# Read individual EMA data and save an RDS file.
+# Read individual EMA data and save an RDS file ---------------------
 rule read_ema_data:
     input:
         dir_data=config["ema_data_dir"],
@@ -83,7 +89,7 @@ rule wrangling_ema_data:
         "workflows/scripts/ema/data_wrangling.R"
 
 
-# Read questionnaire data and save two CSV files.
+# Read questionnaire data and save two CSV files --------------------
 rule read_quest_data:
     input:
         quest_data1=config["quest_data1_raw"],
@@ -97,7 +103,7 @@ rule read_quest_data:
         "workflows/scripts/quest/import_quest_data.R"
 
 
-# Select columns of the NATES questionnaire.
+# Select columns of the NATES questionnaire -------------------------
 rule select_cols_nates:
     input:
         quest_data1=config["quest_data1_clean"],
@@ -122,3 +128,171 @@ rule scoring_nates:
 
 
 include: "workflows/rules/closing_messages.smk"
+
+
+# Select columns of the DASS-21 questionnaire -----------------------
+rule select_cols_dass21:
+    input:
+        quest_data1=config["quest_data1_clean"],
+    output:
+        dass21_cols="data/prep/quest_scales/dass21_items.csv",
+    log:
+        "logs/select_cols_dass21.log",
+    script:
+        "workflows/scripts/quest/select_cols_dass21.R"
+
+
+# Scoring of the DASS-21 questionnaire.
+rule scoring_dass21:
+    input:
+        dass21_cols="data/prep/quest_scales/dass21_items.csv",
+    output:
+        dass21_scores="data/prep/quest_scales/dass21_scores.csv",
+    log:
+        "logs/scoring_dass21.log",
+    script:
+        "workflows/scripts/quest/scoring_dass21.R"
+
+
+# Select columns of the DERS questionnaire --------------------------
+rule select_cols_ders:
+    input:
+        quest_data1=config["quest_data1_clean"],
+    output:
+        ders_cols="data/prep/quest_scales/ders_items.csv",
+    log:
+        "logs/select_cols_ders.log",
+    script:
+        "workflows/scripts/quest/select_cols_ders.R"
+
+
+# Scoring of the DERS questionnaire.
+rule scoring_ders:
+    input:
+        ders_cols="data/prep/quest_scales/ders_items.csv",
+    output:
+        ders_scores="data/prep/quest_scales/ders_scores.csv",
+    log:
+        "logs/scoring_ders.log",
+    script:
+        "workflows/scripts/quest/scoring_ders.R"
+
+
+# Select columns of the NEO-FFI-60-NEURO questionnaire --------------
+rule select_cols_neoffi60neuro:
+    input:
+        quest_data1=config["quest_data1_clean"],
+    output:
+        neoffi60neuro_cols="data/prep/quest_scales/neoffi60_neuro_items.csv",
+    log:
+        "logs/select_cols_neoffi60neuro.log",
+    script:
+        "workflows/scripts/quest/select_cols_neoffi60_neuro.R"
+
+
+# Scoring of the NEO-FFI-60-NEURO questionnaire.
+rule scoring_neoffi60neuro:
+    input:
+        neoffi60neuro_cols="data/prep/quest_scales/neoffi60_neuro_items.csv",
+    output:
+        neoffi60neuro_scores="data/prep/quest_scales/neoffi60_neuro_scores.csv",
+    log:
+        "logs/scoring_neoffi60neuro.log",
+    script:
+        "workflows/scripts/quest/scoring_neoffi60neuro.R"
+
+
+# Select columns of the Rosenberg questionnaire ---------------------
+rule select_cols_rosenberg:
+    input:
+        quest_data1=config["quest_data1_clean"],
+    output:
+        rosenberg_cols="data/prep/quest_scales/rosenberg_items.csv",
+    log:
+        "logs/select_cols_rosenberg.log",
+    script:
+        "workflows/scripts/quest/select_cols_rosenberg.R"
+
+
+# Scoring of the Rosenberg questionnaire.
+rule scoring_rosenberg:
+    input:
+        rosenberg_cols="data/prep/quest_scales/rosenberg_items.csv",
+    output:
+        rosenberg_scores="data/prep/quest_scales/rosenberg_scores.csv",
+    log:
+        "logs/scoring_rosenberg.log",
+    script:
+        "workflows/scripts/quest/scoring_rosenberg.R"
+
+
+# Select columns of the RSCS questionnaire --------------------------
+rule select_cols_rscs:
+    input:
+        quest_data1=config["quest_data1_clean"],
+    output:
+        rscs_cols="data/prep/quest_scales/rscs_items.csv",
+    log:
+        "logs/select_cols_rscs.log",
+    script:
+        "workflows/scripts/quest/select_cols_rscs.R"
+
+
+# Scoring of the RSCS questionnaire.
+rule scoring_rscs:
+    input:
+        rscs_cols="data/prep/quest_scales/rscs_items.csv",
+    output:
+        rscs_scores="data/prep/quest_scales/rscs_scores.csv",
+    log:
+        "logs/scoring_rscs.log",
+    script:
+        "workflows/scripts/quest/scoring_rscs.R"
+
+
+# Select columns of the SCL90 questionnaire -------------------------
+rule select_cols_scl90:
+    input:
+        quest_data1=config["quest_data1_clean"],
+    output:
+        scl90_cols="data/prep/quest_scales/scl90_items.csv",
+    log:
+        "logs/select_cols_scl90.log",
+    script:
+        "workflows/scripts/quest/select_cols_scl90.R"
+
+
+# Scoring of the SCL90 questionnaire.
+rule scoring_scl90:
+    input:
+        scl90_cols="data/prep/quest_scales/scl90_items.csv",
+    output:
+        scl90_scores="data/prep/quest_scales/scl90_scores.csv",
+    log:
+        "logs/scoring_scl90.log",
+    script:
+        "workflows/scripts/quest/scoring_scl90.R"
+
+
+# Select columns of the SCS questionnaire ---------------------------
+rule select_cols_scs:
+    input:
+        quest_data1=config["quest_data1_clean"],
+    output:
+        scs_cols="data/prep/quest_scales/scs_items.csv",
+    log:
+        "logs/select_cols_scs.log",
+    script:
+        "workflows/scripts/quest/select_cols_scs.R"
+
+
+# Scoring of the SCS questionnaire.
+rule scoring_scs:
+    input:
+        scs_cols="data/prep/quest_scales/scs_items.csv",
+    output:
+        scs_scores="data/prep/quest_scales/scs_scores.csv",
+    log:
+        "logs/scoring_scs.log",
+    script:
+        "workflows/scripts/quest/scoring_scs.R"

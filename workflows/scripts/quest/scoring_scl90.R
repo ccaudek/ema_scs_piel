@@ -8,7 +8,8 @@ suppressPackageStartupMessages({
 })
 
 scl90_items <- rio::import(
-  here::here("data", "prep", "quest_scales", "scl90_items.csv")
+  # here::here("data", "prep", "quest_scales", "scl90_items.csv")
+  snakemake@input[["scl90_cols"]]
 )
 
 # Source scl90.R on GitHub, which includes the function scoring_scl90().
@@ -20,7 +21,8 @@ scl90_subscales <- scoring_scl90(scl90_items)
 
 rio::export(
   scl90_subscales, 
-  here::here("data", "prep", "quest_scales", "scl90_scores.csv")
+  # here::here("data", "prep", "quest_scales", "scl90_scores.csv")
+  snakemake@output[["scl90_scores"]]
 )
 
 # eof ----

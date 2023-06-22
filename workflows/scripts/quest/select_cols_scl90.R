@@ -7,7 +7,10 @@ suppressPackageStartupMessages({
 
 source(here::here("workflows", "scripts", "quest", "funs", "funs_quest.R"))
 
-d <- rio::import(here::here("data", "prep", "quest_scales", "quest_ema_1_prep.csv"))
+d <- rio::import(
+  # here::here("data", "prep", "quest_scales", "quest_ema_1_prep.csv")
+  snakemake@input[["quest_data1"]]
+  )
 
 NITEMS <- 90
 
@@ -46,7 +49,8 @@ scl90_items_num <- scl90_items_num %>%
 
 rio::export(
   scl90_items_num,
-  here::here("data", "prep", "quest_scales", "scl90_items.csv")
+  # here::here("data", "prep", "quest_scales", "scl90_items.csv")
+  snakemake@output[["scl90_cols"]]
 )
 
 # eof ----

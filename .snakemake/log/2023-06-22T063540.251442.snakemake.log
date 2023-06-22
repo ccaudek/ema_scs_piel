@@ -1,0 +1,54 @@
+Multiple includes of /Users/corrado/_repositories/ema_scs_piel/workflows/rules/closing_messages.smk ignored
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                      count    min threads    max threads
+---------------------  -------  -------------  -------------
+all                          1              1              1
+scoring_rosenberg            1              1              1
+select_cols_rosenberg        1              1              1
+total                        3              1              1
+
+Select jobs to execute...
+
+[Thu Jun 22 06:35:40 2023]
+rule select_cols_rosenberg:
+    input: data/prep/quest_scales/quest_ema_1_prep.csv
+    output: data/prep/quest_scales/rosenberg_items.csv
+    log: logs/select_cols_rosenberg.log
+    jobid: 13
+    reason: Missing output files: data/prep/quest_scales/rosenberg_items.csv; Updated input files: data/prep/quest_scales/quest_ema_1_prep.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 06:35:42 2023]
+Finished job 13.
+1 of 3 steps (33%) done
+Select jobs to execute...
+
+[Thu Jun 22 06:35:42 2023]
+rule scoring_rosenberg:
+    input: data/prep/quest_scales/rosenberg_items.csv
+    output: data/prep/quest_scales/rosenberg_scores.csv
+    log: logs/scoring_rosenberg.log
+    jobid: 12
+    reason: Input files updated by another job: data/prep/quest_scales/rosenberg_items.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 06:35:45 2023]
+Finished job 12.
+2 of 3 steps (67%) done
+Select jobs to execute...
+
+[Thu Jun 22 06:35:45 2023]
+localrule all:
+    input: data/prep/ema/ema_data_2.RDS, data/prep/quest_scales/quest_ema_1_prep.csv, data/prep/quest_scales/quest_ema_2_prep.csv, data/prep/quest_scales/nates_scores.csv, data/prep/quest_scales/dass21_scores.csv, data/prep/quest_scales/ders_scores.csv, data/prep/quest_scales/neoffi60_neuro_scores.csv, data/prep/quest_scales/rosenberg_scores.csv
+    jobid: 0
+    reason: Input files updated by another job: data/prep/quest_scales/rosenberg_scores.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 06:35:45 2023]
+Finished job 0.
+3 of 3 steps (100%) done
+Complete log: .snakemake/log/2023-06-22T063540.251442.snakemake.log

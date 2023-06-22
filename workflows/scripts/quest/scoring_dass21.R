@@ -7,8 +7,12 @@ suppressPackageStartupMessages({
   library("devtools")
 })
 
+# dass21_items <- rio::import(
+#   here::here("data", "prep", "quest_scales", "dass21_items.csv")
+# )
+
 dass21_items <- rio::import(
-  here::here("data", "prep", "quest_scales", "dass21_items.csv")
+  snakemake@input[["dass21_cols"]]
 )
 
 # Source sias.R on GitHub, which includes the function scoring_tripm().
@@ -18,9 +22,14 @@ source_url(
 
 dass21_subscales <- scoring_dass21(dass21_items)
 
+# rio::export(
+#   dass21_subscales, 
+#   here::here("data", "prep", "quest_scales", "dass21_scores.csv")
+# )
+
 rio::export(
   dass21_subscales, 
-  here::here("data", "prep", "quest_scales", "dass21_scores.csv")
+  snakemake@output[["dass21_scores"]]
 )
 
 # eof ----

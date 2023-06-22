@@ -1,0 +1,3 @@
+CreateRuleException in file /Users/corrado/_repositories/ema_scs_piel/Snakefile, line 128:
+The name select_cols_nates is already used by another rule
+  File "/Users/corrado/_repositories/ema_scs_piel/Snakefile", line 128, in <module>

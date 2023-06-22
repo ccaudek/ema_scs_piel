@@ -7,7 +7,8 @@ suppressPackageStartupMessages({
 
 source(here::here("workflows", "scripts", "quest", "funs", "funs_quest.R"))
 
-d <- rio::import(here::here("data", "prep", "quest_scales", "quest_ema_1_prep.csv"))
+# d <- rio::import(here::here("data", "prep", "quest_scales", "quest_ema_1_prep.csv"))
+d <- rio::import(snakemake@input[["quest_data1"]])
 
 NITEMS <- 12
 
@@ -21,9 +22,14 @@ colnames(neuroticism_items) <- neuroticism_items_names_plus_id
 # Add catch item to catch_items.csv file.
 add_catch_item(d[, 3], d[, 93])
 
+# rio::export(
+#   neuroticism_items,
+#   here::here("data", "prep", "quest_scales", "neoffi60_neuro_items.csv")
+# )
+
 rio::export(
   neuroticism_items,
-  here::here("data", "prep", "quest_scales", "neoffi60_neuro_items.csv")
+  snakemake@output[["neoffi60neuro_cols"]]
 )
 
 # eof ----

@@ -1,0 +1,48 @@
+Multiple includes of /Users/corrado/_repositories/ema_scs_piel/workflows/rules/closing_messages.smk ignored
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                          count    min threads    max threads
+-------------------------  -------  -------------  -------------
+all                              1              1              1
+scoring_neoffi60neuro            1              1              1
+select_cols_neoffi60neuro        1              1              1
+total                            3              1              1
+
+Select jobs to execute...
+
+[Thu Jun 22 06:08:21 2023]
+rule select_cols_neoffi60neuro:
+    input: data/prep/quest_scales/quest_ema_1_prep.csv
+    output: data/prep/quest_scales/neoffi60_neuro_items.csv
+    log: logs/select_cols_neoffi60neuro.log
+    jobid: 11
+    reason: Code has changed since last execution
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 06:08:22 2023]
+Finished job 11.
+1 of 3 steps (33%) done
+Select jobs to execute...
+
+[Thu Jun 22 06:08:22 2023]
+rule scoring_neoffi60neuro:
+    input: data/prep/quest_scales/neoffi60_neuro_items.csv
+    output: data/prep/quest_scales/neoffi60_neuro_subscale_scores.csv
+    log: logs/scoring_neoffi60neuro.log
+    jobid: 10
+    reason: Input files updated by another job: data/prep/quest_scales/neoffi60_neuro_items.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 06:08:24 2023]
+Error in rule scoring_neoffi60neuro:
+    jobid: 10
+    input: data/prep/quest_scales/neoffi60_neuro_items.csv
+    output: data/prep/quest_scales/neoffi60_neuro_subscale_scores.csv
+    log: logs/scoring_neoffi60neuro.log (check log file(s) for error details)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2023-06-22T060820.686545.snakemake.log

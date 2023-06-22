@@ -1,0 +1,33 @@
+Multiple includes of /Users/corrado/_repositories/ema_scs_piel/workflows/rules/closing_messages.smk ignored
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job             count    min threads    max threads
+------------  -------  -------------  -------------
+all                 1              1              1
+scoring_rscs        1              1              1
+total               2              1              1
+
+Select jobs to execute...
+
+[Thu Jun 22 06:48:34 2023]
+rule scoring_rscs:
+    input: data/prep/quest_scales/rscs_items.csv
+    output: data/prep/quest_scales/rscs_scores.csv
+    log: logs/scoring_rscs.log
+    jobid: 14
+    reason: Missing output files: data/prep/quest_scales/rscs_scores.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 06:48:36 2023]
+Error in rule scoring_rscs:
+    jobid: 14
+    input: data/prep/quest_scales/rscs_items.csv
+    output: data/prep/quest_scales/rscs_scores.csv
+    log: logs/scoring_rscs.log (check log file(s) for error details)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2023-06-22T064834.667907.snakemake.log

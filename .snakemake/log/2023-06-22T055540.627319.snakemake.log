@@ -1,0 +1,4 @@
+Multiple includes of /Users/corrado/_repositories/ema_scs_piel/workflows/rules/closing_messages.smk ignored
+Building DAG of jobs...
+Nothing to be done (all requested files are present and up to date).
+Complete log: .snakemake/log/2023-06-22T055540.627319.snakemake.log

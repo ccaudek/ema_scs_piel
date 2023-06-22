@@ -1,0 +1,279 @@
+Multiple includes of /Users/corrado/_repositories/ema_scs_piel/workflows/rules/closing_messages.smk ignored
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                          count    min threads    max threads
+-------------------------  -------  -------------  -------------
+all                              1              1              1
+read_quest_data                  1              1              1
+scoring_dass21                   1              1              1
+scoring_ders                     1              1              1
+scoring_nates                    1              1              1
+scoring_neoffi60neuro            1              1              1
+scoring_rosenberg                1              1              1
+scoring_rscs                     1              1              1
+scoring_scl90                    1              1              1
+scoring_scs                      1              1              1
+select_cols_dass21               1              1              1
+select_cols_ders                 1              1              1
+select_cols_nates                1              1              1
+select_cols_neoffi60neuro        1              1              1
+select_cols_rosenberg            1              1              1
+select_cols_rscs                 1              1              1
+select_cols_scl90                1              1              1
+select_cols_scs                  1              1              1
+total                           18              1              1
+
+Select jobs to execute...
+
+[Thu Jun 22 07:33:30 2023]
+rule read_quest_data:
+    input: data/raw/quest2022/quest_ema.xlsx, data/raw/quest2022/quest_ema2.xlsx
+    output: data/prep/quest_scales/quest_ema_1_prep.csv, data/prep/quest_scales/quest_ema_2_prep.csv
+    log: logs/read_quest_data.log
+    jobid: 3
+    reason: Missing output files: data/prep/quest_scales/quest_ema_2_prep.csv, data/prep/quest_scales/quest_ema_1_prep.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:31 2023]
+Finished job 3.
+1 of 18 steps (6%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:32 2023]
+rule select_cols_scl90:
+    input: data/prep/quest_scales/quest_ema_1_prep.csv
+    output: data/prep/quest_scales/scl90_items.csv
+    log: logs/select_cols_scl90.log
+    jobid: 17
+    reason: Missing output files: data/prep/quest_scales/scl90_items.csv; Input files updated by another job: data/prep/quest_scales/quest_ema_1_prep.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:33 2023]
+Finished job 17.
+2 of 18 steps (11%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:33 2023]
+rule select_cols_ders:
+    input: data/prep/quest_scales/quest_ema_1_prep.csv
+    output: data/prep/quest_scales/ders_items.csv
+    log: logs/select_cols_ders.log
+    jobid: 9
+    reason: Missing output files: data/prep/quest_scales/ders_items.csv; Input files updated by another job: data/prep/quest_scales/quest_ema_1_prep.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:34 2023]
+Finished job 9.
+3 of 18 steps (17%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:34 2023]
+rule scoring_scl90:
+    input: data/prep/quest_scales/scl90_items.csv
+    output: data/prep/quest_scales/scl90_scores.csv
+    log: logs/scoring_scl90.log
+    jobid: 16
+    reason: Missing output files: data/prep/quest_scales/scl90_scores.csv; Input files updated by another job: data/prep/quest_scales/scl90_items.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:37 2023]
+Finished job 16.
+4 of 18 steps (22%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:37 2023]
+rule select_cols_dass21:
+    input: data/prep/quest_scales/quest_ema_1_prep.csv
+    output: data/prep/quest_scales/dass21_items.csv
+    log: logs/select_cols_dass21.log
+    jobid: 7
+    reason: Missing output files: data/prep/quest_scales/dass21_items.csv; Input files updated by another job: data/prep/quest_scales/quest_ema_1_prep.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:38 2023]
+Finished job 7.
+5 of 18 steps (28%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:38 2023]
+rule select_cols_neoffi60neuro:
+    input: data/prep/quest_scales/quest_ema_1_prep.csv
+    output: data/prep/quest_scales/neoffi60_neuro_items.csv
+    log: logs/select_cols_neoffi60neuro.log
+    jobid: 11
+    reason: Missing output files: data/prep/quest_scales/neoffi60_neuro_items.csv; Input files updated by another job: data/prep/quest_scales/quest_ema_1_prep.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:39 2023]
+Finished job 11.
+6 of 18 steps (33%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:39 2023]
+rule scoring_dass21:
+    input: data/prep/quest_scales/dass21_items.csv
+    output: data/prep/quest_scales/dass21_scores.csv
+    log: logs/scoring_dass21.log
+    jobid: 6
+    reason: Missing output files: data/prep/quest_scales/dass21_scores.csv; Input files updated by another job: data/prep/quest_scales/dass21_items.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:42 2023]
+Finished job 6.
+7 of 18 steps (39%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:42 2023]
+rule scoring_neoffi60neuro:
+    input: data/prep/quest_scales/neoffi60_neuro_items.csv
+    output: data/prep/quest_scales/neoffi60_neuro_scores.csv
+    log: logs/scoring_neoffi60neuro.log
+    jobid: 10
+    reason: Missing output files: data/prep/quest_scales/neoffi60_neuro_scores.csv; Input files updated by another job: data/prep/quest_scales/neoffi60_neuro_items.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:44 2023]
+Finished job 10.
+8 of 18 steps (44%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:44 2023]
+rule select_cols_rscs:
+    input: data/prep/quest_scales/quest_ema_1_prep.csv
+    output: data/prep/quest_scales/rscs_items.csv
+    log: logs/select_cols_rscs.log
+    jobid: 15
+    reason: Missing output files: data/prep/quest_scales/rscs_items.csv; Input files updated by another job: data/prep/quest_scales/quest_ema_1_prep.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:45 2023]
+Finished job 15.
+9 of 18 steps (50%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:45 2023]
+rule scoring_rscs:
+    input: data/prep/quest_scales/rscs_items.csv
+    output: data/prep/quest_scales/rscs_scores.csv
+    log: logs/scoring_rscs.log
+    jobid: 14
+    reason: Missing output files: data/prep/quest_scales/rscs_scores.csv; Input files updated by another job: data/prep/quest_scales/rscs_items.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:47 2023]
+Finished job 14.
+10 of 18 steps (56%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:47 2023]
+rule scoring_ders:
+    input: data/prep/quest_scales/ders_items.csv
+    output: data/prep/quest_scales/ders_scores.csv
+    log: logs/scoring_ders.log
+    jobid: 8
+    reason: Missing output files: data/prep/quest_scales/ders_scores.csv; Input files updated by another job: data/prep/quest_scales/ders_items.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:49 2023]
+Finished job 8.
+11 of 18 steps (61%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:49 2023]
+rule select_cols_scs:
+    input: data/prep/quest_scales/quest_ema_1_prep.csv
+    output: data/prep/quest_scales/scs_items.csv
+    log: logs/select_cols_scs.log
+    jobid: 19
+    reason: Missing output files: data/prep/quest_scales/scs_items.csv; Input files updated by another job: data/prep/quest_scales/quest_ema_1_prep.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:51 2023]
+Finished job 19.
+12 of 18 steps (67%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:51 2023]
+rule scoring_scs:
+    input: data/prep/quest_scales/scs_items.csv
+    output: data/prep/quest_scales/scs_scores.csv
+    log: logs/scoring_scs.log
+    jobid: 18
+    reason: Missing output files: data/prep/quest_scales/scs_scores.csv; Input files updated by another job: data/prep/quest_scales/scs_items.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:53 2023]
+Finished job 18.
+13 of 18 steps (72%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:53 2023]
+rule select_cols_nates:
+    input: data/prep/quest_scales/quest_ema_1_prep.csv
+    output: data/prep/quest_scales/nates_items.csv
+    log: logs/select_cols_nates.log
+    jobid: 5
+    reason: Missing output files: data/prep/quest_scales/nates_items.csv; Input files updated by another job: data/prep/quest_scales/quest_ema_1_prep.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:54 2023]
+Finished job 5.
+14 of 18 steps (78%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:54 2023]
+rule select_cols_rosenberg:
+    input: data/prep/quest_scales/quest_ema_1_prep.csv
+    output: data/prep/quest_scales/rosenberg_items.csv
+    log: logs/select_cols_rosenberg.log
+    jobid: 13
+    reason: Missing output files: data/prep/quest_scales/rosenberg_items.csv; Input files updated by another job: data/prep/quest_scales/quest_ema_1_prep.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:55 2023]
+Finished job 13.
+15 of 18 steps (83%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:55 2023]
+rule scoring_rosenberg:
+    input: data/prep/quest_scales/rosenberg_items.csv
+    output: data/prep/quest_scales/rosenberg_scores.csv
+    log: logs/scoring_rosenberg.log
+    jobid: 12
+    reason: Missing output files: data/prep/quest_scales/rosenberg_scores.csv; Input files updated by another job: data/prep/quest_scales/rosenberg_items.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:33:58 2023]
+Finished job 12.
+16 of 18 steps (89%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:33:58 2023]
+rule scoring_nates:
+    input: data/prep/quest_scales/nates_items.csv
+    output: data/prep/quest_scales/nates_scores.csv
+    log: logs/scoring_nates.log
+    jobid: 4
+    reason: Missing output files: data/prep/quest_scales/nates_scores.csv; Input files updated by another job: data/prep/quest_scales/nates_items.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:34:00 2023]
+Finished job 4.
+17 of 18 steps (94%) done
+Select jobs to execute...
+
+[Thu Jun 22 07:34:00 2023]
+localrule all:
+    input: data/prep/ema/ema_data_2.RDS, data/prep/quest_scales/quest_ema_1_prep.csv, data/prep/quest_scales/quest_ema_2_prep.csv, data/prep/quest_scales/nates_scores.csv, data/prep/quest_scales/dass21_scores.csv, data/prep/quest_scales/ders_scores.csv, data/prep/quest_scales/neoffi60_neuro_scores.csv, data/prep/quest_scales/rosenberg_scores.csv, data/prep/quest_scales/rscs_scores.csv, data/prep/quest_scales/scl90_scores.csv, data/prep/quest_scales/scs_scores.csv
+    jobid: 0
+    reason: Input files updated by another job: data/prep/quest_scales/nates_scores.csv, data/prep/quest_scales/ders_scores.csv, data/prep/quest_scales/rscs_scores.csv, data/prep/quest_scales/quest_ema_1_prep.csv, data/prep/quest_scales/quest_ema_2_prep.csv, data/prep/quest_scales/rosenberg_scores.csv, data/prep/quest_scales/scl90_scores.csv, data/prep/quest_scales/dass21_scores.csv, data/prep/quest_scales/neoffi60_neuro_scores.csv, data/prep/quest_scales/scs_scores.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 07:34:00 2023]
+Finished job 0.
+18 of 18 steps (100%) done
+Complete log: .snakemake/log/2023-06-22T073329.995620.snakemake.log

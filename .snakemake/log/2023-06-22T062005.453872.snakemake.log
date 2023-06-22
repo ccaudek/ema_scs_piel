@@ -1,0 +1,33 @@
+Multiple includes of /Users/corrado/_repositories/ema_scs_piel/workflows/rules/closing_messages.smk ignored
+Building DAG of jobs...
+Using shell: /usr/local/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                      count    min threads    max threads
+---------------------  -------  -------------  -------------
+all                          1              1              1
+scoring_neoffi60neuro        1              1              1
+total                        2              1              1
+
+Select jobs to execute...
+
+[Thu Jun 22 06:20:05 2023]
+rule scoring_neoffi60neuro:
+    input: data/prep/quest_scales/neoffi60_neuro_items.csv
+    output: data/prep/quest_scales/neoffi60_neuro_scores.csv
+    log: logs/scoring_neoffi60neuro.log
+    jobid: 10
+    reason: Missing output files: data/prep/quest_scales/neoffi60_neuro_scores.csv
+    resources: tmpdir=/var/folders/hl/dt523djx7_q7xjrthzjpdvc40000gn/T
+
+[Thu Jun 22 06:20:07 2023]
+Error in rule scoring_neoffi60neuro:
+    jobid: 10
+    input: data/prep/quest_scales/neoffi60_neuro_items.csv
+    output: data/prep/quest_scales/neoffi60_neuro_scores.csv
+    log: logs/scoring_neoffi60neuro.log (check log file(s) for error details)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2023-06-22T062005.453872.snakemake.log

@@ -7,8 +7,12 @@ suppressPackageStartupMessages({
   library("devtools")
 })
 
+# ders_items <- rio::import(
+#   here::here("data", "prep", "quest_scales", "ders_items.csv")
+# )
+
 ders_items <- rio::import(
-  here::here("data", "prep", "quest_scales", "ders_items.csv")
+  snakemake@input[["ders_cols"]]
 )
 
 # Source ders.R on GitHub, which includes the function scoring_ders().
@@ -18,9 +22,14 @@ source_url(
 
 ders_subscales <- scoring_ders(ders_items)
 
+# rio::export(
+#   ders_subscales, 
+#   here::here("data", "prep", "quest_scales", "ders_subscales_scores.csv")
+# )
+
 rio::export(
   ders_subscales, 
-  here::here("data", "prep", "quest_scales", "ders_subscales_scores.csv")
+  snakemake@output[["ders_scores"]]
 )
 
 # eof ----
