@@ -46,6 +46,9 @@ suppressPackageStartupMessages({
   library("mlim")
   library("MuMIn")
   library("patchwork")
+  library("brms")
+  library(loo)
+  library(report)
   # library("sjPlot")
   # library(effects)
   # library(readxl)
@@ -65,7 +68,10 @@ source(
 # Read raw data.
 d <- readRDS(here::here("data", "prep", "ema", "ema_data_2.RDS"))
 
-# Recode `state-scs` -----------------------------------------------------------------
+nrow(d)
+# 1] 12722
+
+# Recode `state-scs`
 
 levels2_to_numeric <- c(
   "1" = -3,
@@ -98,12 +104,6 @@ d <- d1 |>
     nsc = scs_neg_2 + scs_neg_4 + scs_neg_5 + scs_neg_8
   ) 
 
-d |>
-  dplyr::select(psc, nsc, neg_aff) |>
-  ungroup() |>
-  na.omit() |>
-  cor() 
-
 # Remove NAs on SC.
 temp2 <- d[!(is.na(d$psc) | is.na(d$nsc) | is.na(d$neg_aff)), ]
 
@@ -117,20 +117,6 @@ temp2 |>
     n = n_distinct(user_id)
   )
   
-# temp3 <- temp2 %>%
-#   group_by(user_id) |> 
-#   mutate(bysubj_day = dense_rank(day)) |> 
-#   ungroup()
-
-# boo <- temp3 |> 
-#   group_by(foo) |> 
-#   summarize(
-#     n = n_distinct(user_id)
-#   )
-
-# temp4 <- temp3 |> 
-#   dplyr::filter(bysubj_day < 11)
-
 foo <- temp2 |>
   dplyr::select(
     psc, nsc, context, neg_aff
@@ -151,60 +137,58 @@ bad_obs <- c(
 )
 
 temp3 <- temp2[-bad_obs, ]
+nrow(temp3)
+# [1] 12621
 
-piel_data_1 <-  center3L(temp3, neg_aff, user_id, bysubj_day)
-piel_data <-  center3L(piel_data_1, context, user_id, bysubj_day)
+# Select only participants with a low number of missing values.
 
-rm(temp, temp1, temp2, temp3) # ???
+# Select the first 9 days
+temp <- temp3 |> 
+  dplyr::filter(bysubj_day != "10")
 
-# temp <- with(
-#   piel_data,
-#   data.frame(
-#     user_id, upset, nervous, satisfied, happy
-#   ) |> 
-#     mutate(upset = upset * -1, nervous = nervous * -1)
-# )
-# 
-# panas_items <- temp %>%
-#   group_by(user_id) %>%
-#   summarize_at(vars(upset, nervous, satisfied, happy), mean, na.rm = TRUE) |>
-#   dplyr::select(-user_id)
-# 
-# length(unique(temp$user_id))
-# 
-# ee <- eigen(cov(panas_items, use="complete.obs"))
-# ee$values[1] / sum(ee$values)
-# # [1] 0.7476952
-# 
-# mod <- 'na =~ upset + nervous + satisfied + happy'
-# fit <- cfa(mod, data = panas_items, std.lv = TRUE)
-# compRelSEM(fit)
-# # 0.8
-# 
-# fa_scores <- lavPredict(fit)
-# na <- fa_scores[, 1]
-# 
-# cor(na, rowSums(panas_items))
-# [1] 0.9113241
+# First, group the data by user_id
+grouped_df <- temp %>%
+  group_by(user_id) %>%
+  # Next, calculate the number of unique days per subject
+  summarise(num_days = n_distinct(bysubj_day)) %>%
+  # Finally, filter subjects where the maximum number of days is at least 5
+  filter(num_days >= 4)
 
+# Now, you have a new data frame called "grouped_df" containing subjects with at least 5 days.
+# If you need to use this filtered list of user_ids to subset the original dataframe:
+filtered_subjects <- grouped_df$user_id
 
-# Check compliance
+# To get the rows in the original dataframe corresponding to the filtered subjects:
+selected_df <- temp %>%
+  filter(user_id %in% filtered_subjects)
 
-temp <- piel_data |> 
-  group_by(bysubj_day) |> 
+selected_df |> 
+  group_by(user_id) |> 
   summarize(
-    nid = n_distinct(user_id), 
-    n = n()
-  ) 
+    n = max(bysubj_day)
+  ) |> 
+  as.data.frame()
 
-# Compliance: on how many days on average the participants responded?
-mean(temp$nid) / length(unique(piel_data$user_id))
-# [1] 0.846319
+# remove rows for each user_id where there are less than 4 unique levels of 
+# time_window for any single level of date.
+d1 <- selected_df %>%
+  group_by(user_id, date) %>%
+  filter(n_distinct(time_window) >= 2) %>%
+  ungroup()
 
-# For the days in which participants responded, on which proportion of time-
-# window they responded?
-mean((temp$n / (temp$nid*5)))
-# [1] 0.843486
+result <- d1 %>%
+  group_by(user_id, bysubj_day, time_window) %>%
+  filter(row_number() == 1)
+
+# Within-person centering
+piel_data_1 <- center3L(result, neg_aff, user_id, bysubj_day)
+piel_data <- center3L(piel_data_1, context, user_id, bysubj_day)
+
+# Compliance: on how many times on average the participants responded with
+# respect to all the possible notifications?
+nrow(piel_data) / 
+  (length(unique(piel_data$user_id)) * 5 * length(unique(piel_data$bysubj_day)))
+# [1] 0.8322718
 
 # recode negative affect
 piel_data$na_moment <- 
@@ -259,18 +243,182 @@ piel_data$zcntx <-
   sd(piel_data$context, na.rm= T)
 
 
-# Negative State Self-Compassion and Negative Affect ------------------------------------
+# Save final EMA data set
+saveRDS(
+  piel_data,
+  here::here("data", "prep", "ema", "cleaned_piel_data.RDS")
+)
 
-# mod_nsc <- lmer(
-#   znsc ~ zdec + zcntx + na_moment + na_day + na_person +
-#     (1 + zdec + zcntx + na_moment + na_day | user_id),
-#   data = piel_data,
-#   REML = T,
-#   control=lmerControl(optimizer="bobyqa",optCtrl=list(maxfun=2e5))
-# ) 
+# Negative State Self-Compassion and Negative Affect ---------------------------
+
+# lag on na_moment
+# piel_data <- piel_data %>%
+#   arrange(user_id, day, time_window) %>%
+#   group_by(user_id, day) %>%
+#   mutate(na_moment_lag = lag(na_moment, default = first(na_moment))) |> 
+#   ungroup()
+# This does not produce anything interesting.
+
+
+mod_nsc <- brm(
+  znsc ~ na_moment + na_day + na_person + 
+    cntx_moment + cntx_day + cntx_person + 
+    # na_moment:cntx_moment + na_day:cntx_day + na_person:cntx_person +
+    (1 + na_moment + cntx_moment + na_day + cntx_day | user_id),
+  data = piel_data,
+  family = asym_laplace(),
+  # backend = "cmdstanr",
+  algorithm = "meanfield"
+)
+pp_check(mod_nsc)
+summary(mod_nsc)
+marginal_effects(mod_nsc, "na_moment")
+bayes_R2(mod_nsc)
+loo <- loo(mod_nsc)
+plot(loo)
+
+
+
+
+
+delta_t <-
+  posterior_samples(mod_nsc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_na_moment / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%       50%     97.5% 
+# 0.4807264 0.4994895 0.5180982 
+
+delta_t <-
+  posterior_samples(mod_nsc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_na_day / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%       50%     97.5% 
+# 0.5935431 0.6098466 0.6258260 
+
+delta_t <-
+  posterior_samples(mod_nsc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_na_person / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%      50%    97.5% 
+# 1.343279 1.362746 1.383117 
+
+delta_t <-
+  posterior_samples(mod_nsc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_cntx_moment / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%          50%        97.5% 
+# -0.037251242 -0.021409754 -0.004058851 
+
+delta_t <-
+  posterior_samples(mod_nsc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_cntx_day / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%        50%      97.5% 
+# 0.02501838 0.03771344 0.05103810 
+
+delta_t <-
+  posterior_samples(mod_nsc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_cntx_person / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%       50%     97.5% 
+# 0.1613766 0.1773132 0.1928712 
+
+
+# Positive SC
+
+
+mod_psc <- brm(
+  zpsc ~ na_moment + na_day + na_person + 
+    cntx_moment + cntx_day + cntx_person + 
+    # na_moment:cntx_moment + na_day:cntx_day + na_person:cntx_person +
+    (1 + na_moment + cntx_moment + na_day + cntx_day | user_id),
+  data = piel_data,
+  family = asym_laplace(),
+  # backend = "cmdstanr",
+  algorithm = "meanfield"
+)
+pp_check(mod_psc)
+summary(mod_psc)
+marginal_effects(mod_psc, "na_moment")
+bayes_R2(mod_psc)
+loo <- loo(mod_psc)
+plot(loo)
+
+
+tab_model(mod_psc, mod_nsc, show.ci = 0.89)
+
+
+# Effect size
+
+delta_t <-
+  posterior_samples(mod_psc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_na_moment / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%        50%      97.5% 
+# -0.3752343 -0.3604481 -0.3468724 
+
+delta_t <-
+  posterior_samples(mod_psc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_na_day / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%        50%      97.5% 
+# -0.5528627 -0.5347352 -0.5157917 
+
+delta_t <-
+  posterior_samples(mod_psc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_na_person / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%        50%      97.5% 
+# -1.0045272 -0.9790804 -0.9534275  
+
+delta_t <-
+  posterior_samples(mod_psc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_cntx_moment / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%         50%       97.5% 
+# -0.03503294 -0.02311753 -0.01090089 
+
+delta_t <-
+  posterior_samples(mod_psc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_cntx_day / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%          50%        97.5% 
+# -0.003415534  0.029785854  0.063546637 
+
+delta_t <-
+  posterior_samples(mod_psc, pars = c("^b_", "sd_", "sigma") ) %>% # taking the square of each variance component
+  mutate_at(.vars = 8:13, .funs = funs(.^2) ) %>%
+  mutate(delta = b_cntx_person / sqrt(rowSums(.[8:13]) ) )
+quantile(delta_t$delta, c(.025, 0.5, 0.975))
+# 2.5%          50%        97.5% 
+# -0.031602952 -0.013903094  0.001732434 
+
+
+
+
+
+
+
+
+
+
+
+
 
 mod_nsc <- lmer(
   znsc ~ na_moment + na_day + na_person +
+    cntx_moment + cntx_day + cntx_person +
     (1 + na_moment + na_day | user_id),
   data = piel_data,
   REML = T,
@@ -689,3 +837,18 @@ sjPlot::tab_model(mod5_cntx_nsc, title = "")
 # 
 # reportMLM(m1)
 # 
+
+
+bform <- bf(znsc | mi() ~ mi(na_moment) + mi(na_day) + na_person +
+              (1 + mi(na_moment) + mi(na_day) | user_id)) +
+  bf(na_moment | mi() ~ mi(na_day) + na_person) +
+  bf(na_day | mi() ~ mi(na_moment) + na_person) +
+  set_rescor(FALSE)
+
+
+fit <- brm(
+  bform, 
+  data = df,
+  algorithm = "meanfield"
+)
+summary(fit)

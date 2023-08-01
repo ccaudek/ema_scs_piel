@@ -1,0 +1,325 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  man,floatsintext]{apa6}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+% Make \paragraph and \subparagraph free-standing
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+\babelprovide[main,import]{english}
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+% Manuscript styling
+\usepackage{upgreek}
+\captionsetup{font=singlespacing,justification=justified}
+
+% Table formatting
+\usepackage{longtable}
+\usepackage{lscape}
+% \usepackage[counterclockwise]{rotating}   % Landscape page setup for large tables
+\usepackage{multirow}		% Table styling
+\usepackage{tabularx}		% Control Column width
+\usepackage[flushleft]{threeparttable}	% Allows for three part tables with a specified notes section
+\usepackage{threeparttablex}            % Lets threeparttable work with longtable
+
+% Create new environments so endfloat can handle them
+% \newenvironment{ltable}
+%   {\begin{landscape}\centering\begin{threeparttable}}
+%   {\end{threeparttable}\end{landscape}}
+\newenvironment{lltable}{\begin{landscape}\centering\begin{ThreePartTable}}{\end{ThreePartTable}\end{landscape}}
+
+% Enables adjusting longtable caption width to table width
+% Solution found at http://golatex.de/longtable-mit-caption-so-breit-wie-die-tabelle-t15767.html
+\makeatletter
+\newcommand\LastLTentrywidth{1em}
+\newlength\longtablewidth
+\setlength{\longtablewidth}{1in}
+\newcommand{\getlongtablewidth}{\begingroup \ifcsname LT@\roman{LT@tables}\endcsname \global\longtablewidth=0pt \renewcommand{\LT@entry}[2]{\global\advance\longtablewidth by ##2\relax\gdef\LastLTentrywidth{##2}}\@nameuse{LT@\roman{LT@tables}} \fi \endgroup}
+
+% \setlength{\parindent}{0.5in}
+% \setlength{\parskip}{0pt plus 0pt minus 0pt}
+
+% Overwrite redefinition of paragraph and subparagraph by the default LaTeX template
+% See https://github.com/crsh/papaja/issues/292
+\makeatletter
+\renewcommand{\paragraph}{\@startsection{paragraph}{4}{\parindent}%
+  {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries\itshape\typesectitle}}
+
+\renewcommand{\subparagraph}[1]{\@startsection{subparagraph}{5}{1em}%
+  {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
+  {-\z@\relax}%
+  {\normalfont\normalsize\itshape\hspace{\parindent}{#1}\textit{\addperi}}{\relax}}
+\makeatother
+
+% \usepackage{etoolbox}
+\makeatletter
+\patchcmd{\HyOrg@maketitle}
+  {\section{\normalfont\normalsize\abstractname}}
+  {\section*{\normalfont\normalsize\abstractname}}
+  {}{\typeout{Failed to patch abstract.}}
+\patchcmd{\HyOrg@maketitle}
+  {\section{\protect\normalfont{\@title}}}
+  {\section*{\protect\normalfont{\@title}}}
+  {}{\typeout{Failed to patch title.}}
+\makeatother
+
+\usepackage{xpatch}
+\makeatletter
+\xapptocmd\appendix
+  {\xapptocmd\section
+    {\addcontentsline{toc}{section}{\appendixname\ifoneappendix\else~\theappendix\fi\\: #1}}
+    {}{\InnerPatchFailed}%
+  }
+{}{\PatchFailed}
+\keywords{anorexia nervosa, reinforcement learning, contextual learning, probabilistic reversal learning\newline\indent Word count: X}
+\usepackage{lineno}
+
+\linenumbers
+\usepackage{csquotes}
+\usepackage{amsmath, xcolor, hyperref, svg, url, array, tabularx, booktabs, caption, float, resizegather, verbatim,threeparttable, caption, soul, pdflscape, longtable,  setspace, adjustbox, threeparttable, booktabs, longtable, makecell, rotating, afterpage, tabularx}
+\newcommand{\comm}[1]{\ignorespaces}
+\raggedbottom
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={An Ecological Momentary Assessment test of the bipolar continuum hypothesis for Self-Compassion},
+  pdfauthor={Corrado Caudek1 \& Ernst-August Doelle1,2},
+  pdflang={en-EN},
+  pdfkeywords={anorexia nervosa, reinforcement learning, contextual learning, probabilistic reversal learning},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{An Ecological Momentary Assessment test of the bipolar continuum hypothesis for Self-Compassion}
+\author{Corrado Caudek\textsuperscript{1} \& Ernst-August Doelle\textsuperscript{1,2}}
+\date{}
+
+
+\shorttitle{SELF-COMPASSION}
+
+\authornote{
+
+Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
+
+Enter author note here.
+
+The authors made the following contributions. Corrado Caudek: Conceptualization, Writing - Original Draft Preparation, Writing - Review \& Editing; Ernst-August Doelle: Writing - Review \& Editing, Supervision.
+
+Correspondence concerning this article should be addressed to Corrado Caudek, Postal address. E-mail: \href{mailto:my@email.com}{\nolinkurl{my@email.com}}
+
+}
+
+\affiliation{\vspace{0.5cm}\textsuperscript{1} Wilhelm-Wundt-University\\\textsuperscript{2} Konstanz Business School}
+
+\abstract{%
+\textbf{Objective:} This study compared individuals with Restrictive Anorexia Nervosa (R-AN; n = 40) to Healthy Controls (HCs; n = 45) and healthy controls at RIsk of eating disorders (RI; n = 36) in a Probabilistic Reversal Learning (PRL) task. The aim was to investigate whether R-AN individuals perform similarly to HCs and RIs in neutral contexts but show significant impairments in food-related contexts. \textbf{Method:} Participants completed a PRL task, making choices related to their disorder or unrelated to it. \textbf{Results:} R-AN individuals showed lower learning rates for disorder-related decisions, but their performance on neutral decisions was similar to the HC and RI groups. Additionally, only the R-AN patients exhibited reduced learning rates for food-related decisions compared to food-unrelated decisions. \textbf{Discussion:} These findings suggest that contextual cues, like food images, negatively impact Reinforcement Learning (RL) processes in individuals with R-AN. This raises questions about whether the impaired RL performance should be solely attributed to compromised learning mechanisms, especially when RL abilities appear intact in neutral contexts. The study's insights may have implications for developing interventions that target decision-making processes in individuals with R-AN.
+}
+
+
+
+\begin{document}
+\maketitle
+
+\hypertarget{method}{%
+\section{Method}\label{method}}
+
+\hypertarget{procedure}{%
+\subsection{Procedure}\label{procedure}}
+
+Check whether data are MAR. To enhance the plausibility of MAR, it may be beneficial to focus attention on variables that are still observed when EMA prompts are missing; examples include temporal variables (time of day, day of week) and passively recorded ambulatory assessments (e.g., geo-location, accelerometry).
+
+To ensure effective EMA monitoring, participants received comprehensive instructions before engaging in the assessment task through face-to-face interactions with a research assistant (about 30 min per participant). These individualized meetings involved explicit training on using the mpath App, guidance on when to respond to prompts, clarification of question terminologies, and instruction on using rating scales.
+
+\hypertarget{data-analysis}{%
+\subsection{Data analysis}\label{data-analysis}}
+
+Missing data
+
+\url{https://cran.r-project.org/web/packages/brms/vignettes/brms_missings.html}
+
+The R package brms employed imputation during model fitting to handle missing data. This approach allows for the utilization of the multilevel structure in imputing missing values, a task that is not easily achieved with standard multiple imputation software.
+
+\hypertarget{positive-and-negative-affect}{%
+\subsubsection{Positive and negative affect}\label{positive-and-negative-affect}}
+
+As per the method presented by Lai (2021), within-person reliability, measured using McDonald's omega, yielded a value of \(\omega\) = 0.839; for between-person reliability, the calculated McDonald's omega was \(\omega\) = 0.810.
+
+\hypertarget{personally-relevant-event}{%
+\subsubsection{Personally relevant event}\label{personally-relevant-event}}
+
+Participants were asked to rate the most personally relevant event which had occurred after the last prompt on a 5-point Likert scale from -2 (very unpleasing) to +2 (very pleasing). If participants had not experienced any relevant event, they could choose the option 0. Within-person reliability, measured using McDonald's omega, yielded a value of \(\omega\) = XX; for between-person reliability, the calculated McDonald's omega was \(\omega\) = XX (Lai, 2021).
+
+\hypertarget{state-self-compassion}{%
+\subsubsection{State Self-Compassion}\label{state-self-compassion}}
+
+\hypertarget{data-analysis-1}{%
+\subsection{Data Analysis}\label{data-analysis-1}}
+
+Instead of using within-person centering, we performed the following standardization in order to facilitate the interpretation of the effect sizes (Mey et al., 2023; Wang, Zhang, Maxwell, \& Bergeman, 2019). For each observation, we calculated the momentary level score by taking the difference between the observation's score and the individual's mean score for that variable. Then, we divided this difference by the individual's standard deviation for that variable (\texttt{moment}). Similarly, for each observation, we determined the day level score by taking the difference between the observation's score and the individual's mean score for that variable at the day level. We then divided this difference by the individual's standard deviation for that variable (\texttt{day}). Additionally, we standardized the average level of negative affect for each participant in relation to the mean of the entire group (\texttt{person}). Furthermore, the outcome variables, positive Self-Compassion (SC-Pos), and negative Self-Compassion (SC-Neg) were also standardized.
+
+\hypertarget{results}{%
+\subsection{Results}\label{results}}
+
+EMA compliance, which refers to the percentage of responded beeps out of the total number of requested or prompted beeps, was XX\%.
+
+--\textgreater{} report histogram of individual compliance rates.
+--\textgreater{} ranges between 70\% and 85\% ( Jones et al.~2019, May et al.~2018, Wen et al.~2017).
+
+\hypertarget{effects-of-negative-affect-and-recent-event-on-sc-pos}{%
+\subsubsection{Effects of Negative Affect and recent event on SC-Pos}\label{effects-of-negative-affect-and-recent-event-on-sc-pos}}
+
+\hypertarget{effects-of-negative-affect-and-recent-event-on-sc-neg}{%
+\subsubsection{Effects of Negative Affect and recent event on SC-Neg}\label{effects-of-negative-affect-and-recent-event-on-sc-neg}}
+
+We investigated the impact of negative mood and the valence of the most recent personally relevant event on state negative self-compassion using a Bayesian multilevel regression model. The model included three predictors for negative affect (\texttt{na\_moment}, \texttt{na\_day}, and \texttt{na\_person}) and three predictors for the assessed recent event (\texttt{cntx\_moment}, \texttt{cntx\_day}, and \texttt{cntx\_person}). We treated ID as a random effect and incorporated random intercepts and slopes for \texttt{na\_moment}, \texttt{na\_day}, \texttt{cntx\_moment}, and \texttt{cntx\_day}. The results are reported in Table XX show that, for certain coefficients, the 95\% credibility interval did not include 0.
+
+Specifically, for \texttt{na\_moment}, the Bayesian Cohen's d was 0.462 with a 95\% credible interval of {[}0.439, 0.485{]}, suggesting a positive effect on SC-Neg. Similarly, \texttt{na\_day} showed a positive effect on SC-Neg with a Bayesian Cohen's d of 0.506 and a 95\% credible interval of {[}0.476, 0.537{]}. Additionally, \texttt{na\_person} demonstrated a substantial positive effect on SC-Neg with a Bayesian Cohen's d of 1.285 and a 95\% credible interval of {[}1.267, 1.303{]}. The Bayesian R-squared, which measures the proportion of variance in the response variable explained by both the fixed effects and the random effects, was 0.706, 95\% CI {[}0.697, 0.714{]}.
+
+\hypertarget{test-of-the-bipolar-continuum-hypothesis}{%
+\subsubsection{Test of the bipolar continuum hypothesis}\label{test-of-the-bipolar-continuum-hypothesis}}
+
+The two previous statistical analyses indicate that negative affect (NA) has a symmetrical and comparable impact on two components of Self-Compassion (SC), namely SC-Pos and SC-Neg. To formally test the bipolar continuum hypothesis, we can examine and compare the slopes that quantify these effects for both SC components.
+
+The bipolar continuum hypothesis posits a perfect linear symmetry, wherein an increase in SC-Neg due to NA is balanced by a corresponding decrease in SC-Pos. To assess this hypothesis, we can recode the data such that SC-Neg represents the absence of negative Self-Compassion, achieved by changing the sign of SC-Neg. In this recoded context, the slopes representing the effects of NA on SC must demonstrate statistical parallelism between the two cases.
+
+We conducted a Bayesian Analysis of Covariance (BACOVA) multilevel model to examine the bipolar continuum hypothesis. The dependent variable was Self-Compassion, and the predictors included Valence of Self-Compassion (coded as -1 and +1), Self-Compassion itself, and Negative Affect (NA) represented by its three dimensions: Moment, Day, and Person. A key aspect of the model was the interaction between the three levels of NA and the valence of Self-Compassion. Additionally, we incorporated the three levels of recent Personally Significant events and their interactions with Valence as additional predictors. The model accounted for random intercepts and random slopes for all within-subject effects.
+
+To evaluate whether the interactions between Valence and the levels of Negative Affect (NA), or the interactions between Valence and the levels of recent Personally Significant events, should be included in the model, we fitted a second model without these interactions. The purpose was to investigate whether the effects of Valence on NA differ between SC-Pos and SC-Neg, or whether the effects of NA on recent Personally Significant events differ between SC-Pos and SC-Neg.
+
+Subsequently, we computed the difference in expected log pointwise predictive density (\(\Delta\)elpd\(_{\text{LOO}}\)) among all three models. A \(\Delta\)elpd\(_{\text{LOO}}\) of at least two standard errors (SEs) between two models indicates a substantial difference in predictive performance. This analysis allows us to determine the relevance of including the interactions based on their impact on predictive accuracy.
+
+We found robust differences in predictive accuracy between the two models. Namely, the non-interaction model had a substantially higher predictive accuracy than the interction model, \(\Delta\)elpd\(_{\text{LOO}}\) = -1536.57 (\(SE_{\text{diff}}\) = 42.61). Thus, the model comparisons suggested that the no-interaction model might be a better predictor of State Self-Compassion than the interaction model. In other words, our findings do not provide evidence to support the notion that Negative Affect (NA) or recent Personally Significant events have a differential impact on SC-Pos and SC-Neg. For further details, see SI.
+
+\hypertarget{multilevel}{%
+\subsubsection{Multilevel}\label{multilevel}}
+
+The bipolar continuum hypothesis suggests a close relationship between the two aspects of Self-Compassion: when one component increases, the other is expected to decrease. Additionally, if any other variable has a linear effect on one component, it should have an opposite effect on the other component. To directly test this hypothesis, we modify the measurement of Negative Self-Compassion (SC-Neg) by considering it as the absence, rather than the presence, of Negative Self-Compassion using item reversal coding. Then, we examine whether the slopes of the regression lines, representing the effect of NA on Self-Compassion, are statistically parallel.
+
+To test the bipolar continuum hypothesis in a more direct way, we used a multilevel mixed-effects regression model to examine the relationship between Self-Compassion and predictors valence (which distinguishes between the positive and negative components of Self-Compassion), \texttt{moment}, \texttt{day}, and \texttt{person}, and their interactions. The model included random intercepts and slopes for \texttt{moment} and \texttt{day}. According to the bipolar continuum hypothesis, we anticipated no statistically meaningful interaction between ``valence'' and the other predictors in the statistical model. The analysis results support this expectation, as the 95\% confidence intervals for all the regressors coding the interactions encompassed the value of 0. This implies that the relationships between ``valence'' and the other predictors are not statistically distinguishable from zero, providing evidence that the components of Self-Compassion are only influenced by the additive effects of the predictors (i.e., there is no evidence of interaction).
+
+\hypertarget{study-2}{%
+\section{Study 2}\label{study-2}}
+
+Study 2 served two main purposes. Firstly, to address the limitations of EMA methods in capturing infrequent events like major life events occurring once a month or less, we implemented an EMA burst design (Sliwinski 2008). Our participants were exclusively university students, and we collected EMA data on two specific occasions: the day before and the day after a particularly challenging exam. This unique approach allowed us to compare the impact of intense negative affect before and after the exam on self-compassion during these critical periods.
+
+Secondly, we aimed to replicate the findings from experiment 1 using a different sample. For this purpose, we collected EMA data during moments that were at least a week apart from any exam, ensuring that the emotional experiences captured were unrelated to academic stress, as in the first study.
+
+TODO: provide some criterion for ``difficult''.
+
+\newpage
+
+\hypertarget{general-discussion}{%
+\subsection{General Discussion}\label{general-discussion}}
+
+One limitation concerns the participant selection bias. Given the burden associated with EMA studies, individuals who agree to participate in these studies are likely to differ in many ways from those who do not: They may have relatively high levels of motivation, interest, and perceived ability to complete the required reporting tasks. This may skew EMA participant samples toward individuals who find meaning in their participation, those who are more familiar with electronic devices (younger people and those who are computer savvy), those with fewer professional and/or personal demands, and/or those with certain personality characteristics (e.g., high conscientiousness, openness to experience; Cheng et al.~2020). The magnitude and direction of such selection effects on the associations being investigated will typically not be known at the outset of a study and pose a threat to the generalizability and external validity of findings.
+
+\hypertarget{references}{%
+\section{References}\label{references}}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-lai2021composite}{}}%
+Lai, M. H. (2021). Composite reliability of multilevel data: It's about observed scores and construct meanings. \emph{Psychological Methods}, \emph{26}(1), 90--102.
+
+\leavevmode\vadjust pre{\hypertarget{ref-mey2023kind}{}}%
+Mey, L. K., Wenzel, M., Morello, K., Rowland, Z., Kubiak, T., \& Tüscher, O. (2023). Be kind to yourself: The implications of momentary self-compassion for affective dynamics and well-being in daily life. \emph{Mindfulness}, \emph{14}(3), 622--636.
+
+\leavevmode\vadjust pre{\hypertarget{ref-wang2019standardizing}{}}%
+Wang, L., Zhang, Q., Maxwell, S. E., \& Bergeman, C. (2019). On standardizing within-person effects: Potential problems of global standardization. \emph{Multivariate Behavioral Research}, \emph{54}(3), 382--403.
+
+\end{CSLReferences}
+
+
+\end{document}
