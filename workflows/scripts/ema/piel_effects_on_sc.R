@@ -107,6 +107,14 @@ d <- d1 |>
 # Remove NAs on SC.
 temp2 <- d[!(is.na(d$psc) | is.na(d$nsc) | is.na(d$neg_aff)), ]
 
+
+# Compliance: on how many times on average the participants responded with
+# respect to all the possible notifications?
+nrow(temp2) / 
+  (length(unique(temp2$user_id)) * 5 * length(unique(temp2$bysubj_day)))
+# [1] 0.8322718
+
+
 unique(temp2$date)
 # [1] 2022-04-09 2022-04-16 2022-04-23 2022-04-30 2022-05-07 2022-05-14 2022-05-21
 # [8] 2022-05-28 2022-06-04 2022-04-02
@@ -183,12 +191,6 @@ result <- d1 %>%
 # Within-person centering
 piel_data_1 <- center3L(result, neg_aff, user_id, bysubj_day)
 piel_data <- center3L(piel_data_1, context, user_id, bysubj_day)
-
-# Compliance: on how many times on average the participants responded with
-# respect to all the possible notifications?
-nrow(piel_data) / 
-  (length(unique(piel_data$user_id)) * 5 * length(unique(piel_data$bysubj_day)))
-# [1] 0.8322718
 
 # recode negative affect
 piel_data$na_moment <- 

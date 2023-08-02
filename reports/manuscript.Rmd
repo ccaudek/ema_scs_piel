@@ -75,15 +75,9 @@ knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 
 ## Procedure
 
-Check whether data are MAR. To enhance the plausibility of MAR, it may be beneficial to focus attention on variables that are still observed when EMA prompts are missing; examples include temporal variables (time of day, day of week) and passively recorded ambulatory assessments (e.g., geo-location, accelerometry).
-
 To ensure effective EMA monitoring, participants received comprehensive instructions before engaging in the assessment task through face-to-face interactions with a research assistant (about 30 min per participant). These individualized meetings involved explicit training on using the mpath App, guidance on when to respond to prompts, clarification of question terminologies, and instruction on using rating scales. 
 
 ## Data analysis
-
-Missing data 
-
-https://cran.r-project.org/web/packages/brms/vignettes/brms_missings.html
 
 The R package brms employed imputation during model fitting to handle missing data. This approach allows for the utilization of the multilevel structure in imputing missing values, a task that is not easily achieved with standard multiple imputation software.
 
@@ -93,7 +87,7 @@ As per the method presented by @lai2021composite, within-person reliability, mea
 
 ### Personally relevant event
 
-Participants were asked to rate the most personally relevant event which had occurred after the last prompt on a 5-point Likert scale from -2 (very unpleasing) to +2 (very pleasing). If participants had not experienced any relevant event, they could choose the option 0. Within-person reliability, measured using McDonald’s omega, yielded a value of $\omega$ = XX; for between-person reliability, the calculated McDonald's omega was $\omega$ = XX [@lai2021composite].
+Participants were asked to rate the most personally relevant event which had occurred after the last prompt on a 5-point Likert scale from -2 (very unpleasing) to +2 (very pleasing). If participants had not experienced any relevant event, they could choose the option 0. Within-person reliability, measured using McDonald's omega, yielded a value of $\omega$ = XX; for between-person reliability, the calculated McDonald's omega was $\omega$ = XX [@lai2021composite].
 
 ### State Self-Compassion
 
@@ -132,9 +126,7 @@ To evaluate whether the interactions between Valence and the levels of Negative 
 
 Subsequently, we computed the difference in expected log pointwise predictive density ($\Delta$elpd$_{\text{LOO}}$) among all three models. A $\Delta$elpd$_{\text{LOO}}$ of at least two standard errors (SEs) between two models indicates a substantial difference in predictive performance. This analysis allows us to determine the relevance of including the interactions based on their impact on predictive accuracy.
 
-We found robust differences in predictive accuracy between the two models. Namely, the non-interaction model had a substantially higher predictive accuracy than the interction model, $\Delta$elpd$_{\text{LOO}}$ = -1536.57 ($SE_{\text{diff}}$ = 42.61). Thus, the model comparisons suggested that the no-interaction model might be a better predictor of State Self-Compassion than the interaction model. In other words, our findings do not provide evidence to support the notion that Negative Affect (NA) or recent Personally Significant events have a differential impact on SC-Pos and SC-Neg. For further details, see SI. 
-
-
+We found robust differences in predictive accuracy between the two models. Namely, the non-interaction model had a substantially higher predictive accuracy than the interaction model, $\Delta$elpd$_{\text{LOO}}$ = -1536.57 ($SE_{\text{diff}}$ = 42.61). Thus, the model comparisons suggested that the no-interaction model might be a better predictor of State Self-Compassion than the interaction model. In other words, our findings do not provide evidence to support the notion that Negative Affect (NA) or recent Personally Significant events have a differential impact on SC-Pos and SC-Neg. For further details, see SI. 
 
 
 
