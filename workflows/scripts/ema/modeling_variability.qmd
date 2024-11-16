@@ -1,0 +1,97 @@
+---
+title: "Untitled"
+format: html
+editor: source
+---
+
+# Motivation
+
+The starting point is:
+
+Feng, Y., & Hancock, G. R. (2022, April 11). A Structural Equation Modeling Approach for Modeling Variability as a Latent Variable. Psychological Methods. Advance online publication. http://dx.doi.org/10.1037/met0000477
+
+
+For this illustrative example, we applied the proposed models to examine intraindividual consistency in daily curiosity. The empirical data used in this example were collected from the Knowledge Networks Over Time (KNOT) study, an intensive longitudinal investigation of day-to-day intraindividual variability in various outcomes, with curiosity being of specific interest to the investiga- tors (Lydon-Staley et al., 2020). The researchers theorized that people not only differ in their trait-level curiosity, but also vary in the fluctuations of their daily experience of curiosity. Further, they hypothesized that an individual’s mental well-being depends not only on a person’s trait-level curiosity, but on how consistent a person’s curiosity levels are from day to day as well. More details about the KNOT study can be found in Lydon-Staley et al. (2020).
+
+The analytical data used for this illustrative example includes 166 participants (135 females, 29 males, and two with other gender identities; M age = 25.41 years, SD = 7.35) who were instructed to complete a daily diary consisting of various survey items for 21 days after the lab visit. 
+
+Besides the daily diary, participants also completed a survey to report their trait-level characteristics, includ- ing demographics, mental well-being, and general curiosity. Daily curiosity was assessed as part of the daily diary with two items taken from the Curiosity and Exploration Inventory-II (CEI-II; Kashdan et al., 2009): (a) “Today, I viewed challenging situations as an opportunity to grow and learn,” and (b) “Everywhere I went today, I was out looking for new things or experiences.” 
+
+Participants responded to both the items on a slider from 0 (not at all) to 10 (very) in increments of .1, with a daily curiosity score derived as the average score of the two items. A plot showing daily fluctua- tions in this score for five randomly selected individuals is presented in Figure 7, showing for the sample that while some individuals are more consistent, others vary quite a bit from day to day.
+
+We fit both an unconditional model (Model A) and a conditional model (see Figure 8) to the data in response to the following research questions discussed in Lydon-Staley et al. (2020): 
+
+(a) Do daily fluctuations curiosity vary across individuals and if so, 
+(b) do day-to-day curiosity fluctuations predict individual well-being after the trait-level curiosity is controlled for? 
+
+In this example, the model parameters were estimated using Bayesian estimation via MCMC with Mplus v.8.6 (Muthén & Muthén, 1998–2021). The Mplus syntax files are provided in Supplemental Material B. 
+
+The results of the unconditional model suggest that individuals differ from one another in their daily fluctuations of self-reported curiosity, with an average level of within-individual log-transformed residual variance of .810, and a between-individual variance of the log intraindividual variation of .690:
+ 
+Translating everything onto the raw variance scale, the average level of intraindividual variance is estimated to be 3.186 with a 95% HPDI [2.657, 3.704], while the variance of intraindividual variance is estimated to be 10.089 with a 95% HPDI [5.240, 18.062]. The results also indicate, as seen in the covar- iance term below the diagonal, that the average level of daily curiosity is positively associated with the intraindividual fluc- tuation of curiosity; these results translate to an estimated cor- relation of approximately .48. Thus, people who have a higher level of average curiosity are expected to be less consistent from day to day in terms of their experience of curiosity feelings.
+
+Next, a conditional model was fit to the data (see Figure 8), predicting individual flourishing with self-reported trait-level curiosity at baseline, model-implied individual average curiosity over time, and intraindividual fluctuation of daily curiosity. After controlling for the first two terms, the inconsistency of daily curiosity positively predicts personal flourishing (c^.499]), thus suggesting that the intraindividual variability provides unique information for predicting individuals’ flourishing above and beyond the baseline and personal average trait-like characteristics. Specifically, people who show a greater variability from day to day in their curiosity are predicted to have higher-level of self- reported flourishing.
+
+## Results
+
+
+#### Variance Comparisons Between SC and USC
+- Variance of SC variability (`phi_1`): **0.766** (95% CI: 0.649, 0.906)
+- Variance of USC variability (`phi_1`): **0.658** (95% CI: 0.549, 0.771)
+
+**Observation**:
+- The credible intervals for the variance of SC variability (0.649, 0.906) and USC variability (0.549, 0.771) **overlap substantially**.
+- This overlap indicates that there is **no strong evidence to suggest a difference in the variability (phi_1) between SC and USC**.
+
+#### Effect of Variability on DERS
+- Effect of SC variability on DERS (`beta2`): **0.166** (95% CI: 0.058, 0.268)
+- Effect of USC variability on DERS (`beta2`): **0.151** (95% CI: 0.044, 0.258)
+
+**Observation**:
+- The effects of variability for SC and USC on DERS also have overlapping credible intervals.
+- This suggests that the **strength of the relationship between variability and DERS is similar for SC and USC**.
+
+---
+
+### Interpretation in Light of Neff’s Bipolar Continuum Hypothesis
+
+#### Variability and Emotional Regulation
+- Both **SC and USC variability predict DERS** with similar strength, and their variability measures are not distinguishable in terms of magnitude.
+- This suggests that **fluctuations in both positive and negative self-related processes are equally destabilizing** for emotional regulation.
+
+#### Bipolar Continuum Hypothesis
+- The hypothesis posits that SC and USC are inversely related but distinct constructs. The findings support this:
+  - The **similar impact of SC and USC variability on DERS** suggests that they both contribute uniquely to emotional regulation.
+  - The **lack of a strong difference in their variability** indicates that individuals may experience dynamic interactions between SC and USC over time.
+
+---
+
+### Revised Practical Implications
+1. **Interventions Targeting Stability**:
+   - Efforts to stabilize **both SC and USC** may have comparable benefits for improving emotional regulation.
+   - Promoting consistent SC responses and reducing the variability of USC could be equally effective strategies.
+
+2. **Mechanistic Insights**:
+   - The findings emphasize the **importance of dynamic self-related processes**, highlighting the need for interventions that address daily fluctuations in both positive (SC) and negative (USC) self-perceptions.
+
+---
+
+### Final Conclusion
+
+- The variability in SC and USC does not differ significantly, as indicated by overlapping credible intervals for phi_1.
+- Both SC and USC variability predict DERS similarly, aligning with Neff’s hypothesis that SC and USC are distinct but interrelated processes.
+- Stabilizing both components of state self-compassion could be equally beneficial for improving emotional regulation.
+
+# Adding Negative Affect
+
+It would make sense to control for momentary Negative Affect (NA) in this study. Since both CS (positive self-compassion) and UCS (negative self-compassion) are strongly influenced by NA in opposite directions, failing to control for NA could confound the relationships between the variability of CS or UCS and the external criterion (DERS in this case).
+
+Rationale for Controlling Momentary NA:
+
+- Reduce Confounding: Momentary NA could artificially inflate or obscure the relationship between intra-subject variability of CS or UCS and DERS.
+- Clarify Effects: Controlling for NA allows us to isolate the unique contribution of SC or USC variability to DERS without the confounding influence of NA.
+- Account for Emotional Context: Since NA influences fluctuations in both CS and UCS, accounting for it ensures a more nuanced understanding of variability dynamics.
+
+
+
+

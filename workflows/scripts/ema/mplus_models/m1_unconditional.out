@@ -1,0 +1,455 @@
+Mplus VERSION 8.6 (Mac)
+MUTHEN & MUTHEN
+11/15/2024  11:02 AM
+
+INPUT INSTRUCTIONS
+
+  TITLE: Unconditional random variability model for momentary CS;
+  DATA: FILE = ema_data_for_mplus.dat;
+  VARIABLE:
+  NAMES = user_id bysubj_day time_window CurAve_d FSMean;
+  USEVARIABLES = CurAve_d;
+  CLUSTER = user_id; ! observations nested within individuals (Level-2)
+  ANALYSIS:
+  TYPE = TWOLEVEL RANDOM; ! Multilevel random effects model
+  ESTIMATOR = BAYES; ! Bayesian estimation
+  CHAINS = 3; ! Number of MCMC chains
+  BITERATIONS = 50000 (2000); ! Max and minimum number of iterations per chain
+  PROCESSORS = 2; ! Number of processors for parallel computation
+  MODEL:
+  %WITHIN% ! Within-level (momentary-level variability)
+  LOGV | CurAve_d; ! Log residual variance modeled as random coefficients
+  %BETWEEN% ! Between-level (person-level variability)
+  [CurAve_d] (gamma00); ! Intercept for between-level CS
+  [LOGV] (gamma10); ! Intercept for log residual variance
+  CurAve_d (phi_0); ! Variance of between-level CS
+  LOGV (phi_1); ! Variance of between-level log residual variance
+  CurAve_d WITH LOGV (phi_10); ! Covariance between CS and log residual variance
+  MODEL CONSTRAINT:
+  NEW (mean_v var_v); ! Derived parameters for within-level residual variance
+  mean_v = exp(gamma10 + (1/2)*phi_1); ! Mean of the within-level variance
+  var_v = exp(2*gamma10 + phi_1)*(exp(phi_1)-1); ! Variance of the within-level variance
+  OUTPUT: TECH8 CINTERVAL(HPD); ! Request iteration history and 95% HPD intervals
+
+
+
+INPUT READING TERMINATED NORMALLY
+
+
+
+Unconditional random variability model for momentary CS;
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Number of observations                                       12380
+
+Number of dependent variables                                    1
+Number of independent variables                                  0
+Number of continuous latent variables                            1
+
+Observed dependent variables
+
+  Continuous
+   CURAVE_D
+
+Continuous latent variables
+   LOGV
+
+Variables with special functions
+
+  Cluster variable      USER_ID
+
+Estimator                                                    BAYES
+Specifications for Bayesian Estimation
+  Point estimate                                            MEDIAN
+  Number of Markov chain Monte Carlo (MCMC) chains               3
+  Random seed for the first chain                                0
+  Starting value information                           UNPERTURBED
+  Algorithm used for Markov chain Monte Carlo           GIBBS(PX1)
+  Convergence criterion                                  0.500D-01
+  Maximum number of iterations                               50000
+  K-th iteration used for thinning                               1
+
+Input data file(s)
+  ema_data_for_mplus.dat
+Input data format  FREE
+
+
+SUMMARY OF DATA
+
+     Number of clusters                        326
+
+       Size (s)    Cluster ID with Size s
+
+         12        160 174
+         13        120
+         14        284
+         15        175
+         16        38 224
+         17        150 297
+         18        162
+         19        99 192 308
+         21        191
+         22        177
+         23        145 255 259
+         24        124
+         25        272 204 91 304 180 309 320
+         26        128 129
+         27        3 234 247
+         28        144 277 52 322 104
+         29        121 6
+         30        20 32 33
+         31        59 278 279 166 271
+         32        213 220 221 19 23 254 172 61 314 39 122
+         33        203 241 246 223
+         34        275 30 185 240 161 57 194 300 15 16 106 18
+         35        100 276 126 56 74 133 137 209 211 117 268 35 7
+         36        228 53 205 44 245 188 216 87 285 288 130 243 257 123
+                   260 261 135
+         37        22 103 134 84 86 14 24 190 295 296 94 26 225 265 195
+                   317 2 49
+         38        227 68 299 250 251 306 282 34 148 319 65 181
+         39        230 231 232 73 153 58 281 242 81 83 168 170 206 280
+                   63 131 111 4 112 66 141 85 88 269 51 326
+         40        196 108 50 198 235 236 199 200 43 119 149 287 118 157
+                   42 252 156 210 302 184 248 147 187 313 47 136 264 167
+                   37 325 229
+         41        109 173 116 93 45 238 239 178 215 8 324 244 143
+         42        152 186 292 270 154 82 274 158 159 212 310 214 89 315
+                   90 139 321 29 218 11 182 155
+         43        125 62 21 267 75 298 151 301 176 105 305 219 193 76
+                   80 10 9 97 316 64 17 101 208 60 1 289 293
+         44        95 283 96 146 179 40 249 291 98 294 27 67 41 290 69
+                   127 71 107 258 55 303 12 132 307 262 189 31 25 70 163
+                   92 115 233 318 138 171 79 201 323 202 140 5
+         45        114 222 273 78 13 226 183 48 253 207 110 28 142 311
+                   312 46 256 286 36 164 165 237 197 263 169 217 72 102
+                   113
+         54        54
+         61        266
+         65        77
+
+
+
+
+UNIVARIATE SAMPLE STATISTICS
+
+
+     UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+         Variable/         Mean/     Skewness/   Minimum/ % with                Percentiles
+        Sample Size      Variance    Kurtosis    Maximum  Min/Max      20%/60%    40%/80%    Median
+
+     CURAVE_D              0.006      -0.400      -3.713    0.39%      -0.867     -0.297     -0.013
+           12380.000       0.998       0.331       1.980    3.00%       0.272      0.841
+
+
+THE MODEL ESTIMATION TERMINATED NORMALLY
+
+     USE THE FBITERATIONS OPTION TO INCREASE THE NUMBER OF ITERATIONS BY A FACTOR
+     OF AT LEAST TWO TO CHECK CONVERGENCE AND THAT THE PSR VALUE DOES NOT INCREASE.
+
+
+
+MODEL FIT INFORMATION
+
+Number of Free Parameters                               5
+
+Information Criteria
+
+          Deviance (DIC)                        21842.663
+          Estimated Number of Parameters (pD)     592.961
+
+
+
+MODEL RESULTS
+
+                                Posterior  One-Tailed         95% C.I.
+                    Estimate       S.D.      P-Value   Lower 2.5%  Upper 2.5%  Significance
+
+Within Level
+
+Between Level
+
+ CURAVE_D WITH
+    LOGV              -0.098       0.040      0.006      -0.182      -0.026      *
+
+ Means
+    CURAVE_D           0.000       0.042      0.498      -0.082       0.082
+    LOGV              -1.123       0.051      0.000      -1.223      -1.028      *
+
+ Variances
+    CURAVE_D           0.585       0.047      0.000       0.496       0.680      *
+    LOGV               0.781       0.068      0.000       0.651       0.914      *
+
+New/Additional Parameters
+    MEAN_V             0.481       0.030      0.000       0.424       0.540      *
+    VAR_V              0.274       0.064      0.000       0.164       0.404      *
+
+
+CREDIBILITY INTERVALS OF MODEL RESULTS
+
+                  Lower .5%  Lower 2.5%    Lower 5%    Estimate    Upper 5%  Upper 2.5%   Upper .5%
+
+Within Level
+
+Between Level
+
+ CURAVE_D WITH
+    LOGV            -0.202      -0.182      -0.165      -0.098      -0.035      -0.026       0.004
+
+ Means
+    CURAVE_D        -0.108      -0.082      -0.063       0.000       0.075       0.082       0.100
+    LOGV            -1.251      -1.223      -1.202      -1.123      -1.039      -1.028      -0.985
+
+ Variances
+    CURAVE_D         0.469       0.496       0.513       0.585       0.666       0.680       0.707
+    LOGV             0.616       0.651       0.675       0.781       0.895       0.914       0.968
+
+New/Additional Parameters
+    MEAN_V           0.410       0.424       0.437       0.481       0.534       0.540       0.561
+    VAR_V            0.152       0.164       0.184       0.274       0.383       0.404       0.481
+
+
+TECHNICAL 1 OUTPUT
+
+
+     PARAMETER SPECIFICATION FOR WITHIN
+
+
+           NU
+              CURAVE_D
+              ________
+                    0
+
+
+           LAMBDA
+              CURAVE_D
+              ________
+ CURAVE_D           0
+
+
+           THETA
+              CURAVE_D
+              ________
+ CURAVE_D           0
+
+
+           ALPHA
+              CURAVE_D
+              ________
+                    0
+
+
+           BETA
+              CURAVE_D
+              ________
+ CURAVE_D           0
+
+
+           PSI
+              CURAVE_D
+              ________
+ CURAVE_D           0
+
+
+     PARAMETER SPECIFICATION FOR BETWEEN
+
+
+           NU
+              CURAVE_D
+              ________
+                    0
+
+
+           LAMBDA
+              LOGV          CURAVE_D
+              ________      ________
+ CURAVE_D           0             0
+
+
+           THETA
+              CURAVE_D
+              ________
+ CURAVE_D           0
+
+
+           ALPHA
+              LOGV          CURAVE_D
+              ________      ________
+                    1             2
+
+
+           BETA
+              LOGV          CURAVE_D
+              ________      ________
+ LOGV               0             0
+ CURAVE_D           0             0
+
+
+           PSI
+              LOGV          CURAVE_D
+              ________      ________
+ LOGV               3
+ CURAVE_D           4             5
+
+
+     PARAMETER SPECIFICATION FOR THE ADDITIONAL PARAMETERS
+
+
+           NEW/ADDITIONAL PARAMETERS
+              MEAN_V        VAR_V
+              ________      ________
+                    6             7
+
+
+     STARTING VALUES FOR WITHIN
+
+
+           NU
+              CURAVE_D
+              ________
+                0.000
+
+
+           LAMBDA
+              CURAVE_D
+              ________
+ CURAVE_D       1.000
+
+
+           THETA
+              CURAVE_D
+              ________
+ CURAVE_D       0.000
+
+
+           ALPHA
+              CURAVE_D
+              ________
+                0.000
+
+
+           BETA
+              CURAVE_D
+              ________
+ CURAVE_D       0.000
+
+
+           PSI
+              CURAVE_D
+              ________
+ CURAVE_D       0.000
+
+
+     STARTING VALUES FOR BETWEEN
+
+
+           NU
+              CURAVE_D
+              ________
+                0.000
+
+
+           LAMBDA
+              LOGV          CURAVE_D
+              ________      ________
+ CURAVE_D       0.000         1.000
+
+
+           THETA
+              CURAVE_D
+              ________
+ CURAVE_D       0.000
+
+
+           ALPHA
+              LOGV          CURAVE_D
+              ________      ________
+                0.000         0.006
+
+
+           BETA
+              LOGV          CURAVE_D
+              ________      ________
+ LOGV           0.000         0.000
+ CURAVE_D       0.000         0.000
+
+
+           PSI
+              LOGV          CURAVE_D
+              ________      ________
+ LOGV           1.000
+ CURAVE_D       0.000         0.499
+
+
+     STARTING VALUES FOR THE ADDITIONAL PARAMETERS
+
+
+           NEW/ADDITIONAL PARAMETERS
+              MEAN_V        VAR_V
+              ________      ________
+                0.500         0.500
+
+
+
+     PRIORS FOR ALL PARAMETERS            PRIOR MEAN      PRIOR VARIANCE     PRIOR STD. DEV.
+
+     Parameter 1~N(0.000,infinity)           0.0000            infinity            infinity
+     Parameter 2~N(0.000,infinity)           0.0000            infinity            infinity
+     Parameter 3~IW(0.000,-3)              infinity            infinity            infinity
+     Parameter 4~IW(0.000,-3)              infinity            infinity            infinity
+     Parameter 5~IW(0.000,-3)              infinity            infinity            infinity
+
+
+TECHNICAL 8 OUTPUT
+
+
+   TECHNICAL 8 OUTPUT FOR BAYES ESTIMATION
+
+     CHAIN    BSEED
+     1        0
+     2        285380
+     3        253358
+
+                     POTENTIAL       PARAMETER WITH
+     ITERATION    SCALE REDUCTION      HIGHEST PSR
+     100              1.044               4
+     200              1.014               4
+     300              1.024               3
+     400              1.001               3
+     500              1.004               2
+     600              1.004               5
+     700              1.001               5
+     800              1.001               5
+     900              1.001               5
+     1000             1.001               5
+     1100             1.001               4
+     1200             1.001               2
+     1300             1.000               1
+     1400             1.000               4
+     1500             1.000               1
+     1600             1.000               1
+     1700             1.000               1
+     1800             1.000               1
+     1900             1.000               2
+     2000             1.000               1
+
+
+     Beginning Time:  11:02:04
+        Ending Time:  11:02:14
+       Elapsed Time:  00:00:10
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2021 Muthen & Muthen

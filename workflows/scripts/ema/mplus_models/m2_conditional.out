@@ -1,0 +1,57 @@
+Mplus VERSION 8.6 (Mac)
+MUTHEN & MUTHEN
+11/15/2024   3:02 PM
+
+INPUT INSTRUCTIONS
+
+  TITLE: Refined conditional random variability model for momentary CS;
+  DATA:
+    FILE = ema_data.dat;
+
+  VARIABLE:
+    NAMES = user_id_numeric bysubj_day time_window CurAve_d FSMean;
+    USEVARIABLES = CurAve_d FSMean;
+    CLUSTER = user_id_numeric; ! Numeric ID for Level-2 clustering
+    BETWEEN = FSMean; ! FSMean (DERS) as a Level-2 predictor
+
+  ANALYSIS:
+    TYPE = TWOLEVEL RANDOM; ! Multilevel random effects model
+    ESTIMATOR = BAYES; ! Bayesian estimation
+    CHAINS = 3; ! Number of MCMC chains
+    BITERATIONS = 100000 (5000); ! Maximum iterations and burn-in
+    CONVERGENCE = 1.10; ! Relax convergence criterion if needed
+    PROCESSORS = 2; ! Parallel computation
+    ALGORITHM = GIBBS(RW); ! Use Gibbs sampling with random walk
+
+  MODEL:
+    %WITHIN%
+      LOGV | CurAve_d; ! Log residual variance modeled as random coefficients
+
+    %BETWEEN%
+      [CurAve_d] (gamma00); ! Between-level intercept of CS
+      [LOGV] (gamma10); ! Between-level intercept of log residual variance
+      [FSMean] (gamma20); ! Between-level intercept of FSMean (DERS)
+
+      CurAve_d (phi_0); ! Variance of between-level CS
+      LOGV (phi_1); ! Variance of between-level log residual variance
+
+      CurAve_d WITH LOGV (phi_10); ! Correlation between average CS and variability
+      LOGV WITH FSMean (phi_11); ! Correlation between variability and DERS
+      FSMean ON CurAve_d LOGV; ! Predict DERS with average CS and variability
+
+  MODEL CONSTRAINT:
+    NEW (mean_v var_v); ! Derived parameters for within-level residual variance
+    mean_v = exp(gamma10 + (1/2)*phi_1); ! Mean of the within-level variance
+    var_v = exp(2*gamma10 + phi_1)*(exp(phi_1)-1); ! Variance of the within-level variance
+
+  OUTPUT:
+    TECH8 CINTERVAL(HPD); ! Request iteration history and HPD intervals
+
+
+
+INPUT READING TERMINATED NORMALLY
+
+
+
+Refined conditional random variability model for momentary CS;
+

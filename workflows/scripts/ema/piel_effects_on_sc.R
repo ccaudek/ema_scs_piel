@@ -262,6 +262,294 @@ saveRDS(
 # This does not produce anything interesting.
 
 
+
+# Variance components -----------------------------------------------------
+
+foo <- piel_data
+
+foo$nsc <- scale(foo$nsc) |> as.numeric()
+foo$psc <- scale(foo$psc) |> as.numeric()
+foo$bysubj_day <- factor(foo$bysubj_day)
+
+
+# Step 1: Filter days with less than 3 notifications and remove subjects with insufficient days
+foo_filtered <- foo %>%
+  group_by(user_id, bysubj_day) %>%
+  dplyr::filter(n_distinct(time_window) >= 3) %>%
+  ungroup() %>%
+  group_by(user_id) %>%
+  dplyr::filter(n_distinct(bysubj_day) >= min_days_per_subject) %>%
+  ungroup()
+
+# Step 2: Calculate raw slopes within each subject and day
+slopes_within <- foo_filtered %>%
+  group_by(user_id, bysubj_day) %>%
+  nest() %>%
+  mutate(model = map(
+    data, ~ lm(nsc ~ psc + neg_aff_Day + neg_aff_Person + neg_aff_Moment + 
+                 context_Moment + context_Day + context_Person, data = .x)
+    ),
+         slope = map_dbl(model, ~ coef(.x)["psc"])) %>%
+  ungroup() %>%
+  dplyr::select(user_id, bysubj_day, slope)
+
+# Step 3: Compute average slope for each subject
+avg_slope_per_subject <- slopes_within %>%
+  group_by(user_id) %>%
+  summarise(avg_slope = mean(slope, na.rm = TRUE))
+
+# Step 4: Calculate variance of average slopes across subjects (between-subject variability)
+between_subject_variance <- var(avg_slope_per_subject$avg_slope, na.rm = TRUE)
+cat("Between-subject variance:", between_subject_variance, "\n")
+
+
+# Step 5: Compute the variance of slopes within each subject across days
+within_subject_variance <- slopes_within %>%
+  group_by(user_id) %>%
+  summarise(var_slope_within = var(slope, na.rm = TRUE))
+
+# Step 6: Calculate the mean within-subject variance across all subjects
+mean_within_subject_variance <- mean(within_subject_variance$var_slope_within, na.rm = TRUE)
+
+# Print the result
+cat("Mean within-subject variance:", mean_within_subject_variance, "\n")
+
+
+# Step 1: Fit a multilevel model with random slopes for subjects
+model_lme_day <- lmer(
+  nsc ~ psc + neg_aff + context + (1 + psc | user_id) + (1 | user_id:bysubj_day), 
+  data = foo_filtered
+)
+
+model_lme_day <- lmer(
+  nsc ~ psc + 
+    neg_aff_Day + neg_aff_Person + neg_aff_Moment + 
+    context_Moment + context_Day + context_Person + 
+    (1 + psc | user_id) + 
+    (1 | user_id:bysubj_day), 
+  data = foo_filtered
+)
+
+# Step 2: Summary of the model to inspect variance components
+summary(model_lme_day)
+
+# Step 1: Extract the between-subject variance (random slopes for subjects)
+between_subject_variance <- as.data.frame(VarCorr(model_lme_day)) %>%
+  dplyr::filter(grp == "user_id" & var1 == "psc") %>%
+  select(vcov) %>%
+  pull()
+
+cat("Between-subject variance (from random slopes):", between_subject_variance, "\n")
+
+# Step 2: Extract within-subject variance (random intercepts for days within subjects)
+within_subject_variance <- as.data.frame(VarCorr(model_lme_day)) %>%
+  dplyr::filter(grp == "user_id:bysubj_day") %>%
+  select(vcov) %>%
+  pull()
+
+cat("Within-subject variance (from day-level intercepts):", within_subject_variance, "\n")
+
+# Step 3: Extract the residual variance (within-subject/day-level variability)
+residual_variance <- as.data.frame(VarCorr(model_lme_day)) %>%
+  dplyr::filter(grp == "Residual") %>%
+  select(vcov) %>%
+  pull()
+
+cat("Residual variance (within-day variance):", residual_variance, "\n")
+
+
+# Step 1: Fit the model 
+fit <- brm(
+  nsc ~ psc + 
+    neg_aff_Day + neg_aff_Person + neg_aff_Moment + 
+    context_Moment + context_Day + context_Person + 
+    (1 + psc | user_id) + 
+    (1 | user_id:bysubj_day),
+  data = foo_filtered,
+  family = student(),
+  cores = 8,
+  algorithm = "meanfield",
+  backend = "cmdstanr"
+)
+pp_check(fit)
+
+# Step 2: Extract variance components from the fitted model
+variance_components <- VarCorr(fit)
+print(variance_components)
+
+# Step 3: Extract between-subject variance (random slopes for psc)
+between_subject_variance <- variance_components$user_id$sd["psc", "Estimate"]^2
+cat("Between-subject variance (random slopes for psc):", between_subject_variance, "\n")
+# Between-subject variance (random slopes for psc): 0.02788971 
+
+# Step 4: Correct extraction of within-subject variance (random intercepts for days within subjects)
+within_subject_variance <- variance_components$`user_id:bysubj_day`$sd["Intercept", "Estimate"]^2
+cat("Within-subject variance (day-level intercepts):", within_subject_variance, "\n")
+# Within-subject variance (day-level intercepts): 0.02816534 
+
+# Step 5: Extract the posterior mean for the residual scale (sigma) and degrees of freedom (nu)
+posterior_summary <- summary(fit)$spec_pars
+
+# Extract sigma (scale parameter for the Student's t distribution)
+sigma <- posterior_summary["sigma", "Estimate"]
+
+# Extract nu (degrees of freedom for the Student's t distribution)
+nu <- posterior_summary["nu", "Estimate"]
+
+# Step 6: Calculate residual variance for Student's t-distribution
+if(nu > 2) {
+  residual_variance <- (nu / (nu - 2)) * sigma^2
+  cat("Residual variance (within-day variance):", residual_variance, "\n")
+} else {
+  cat("Degrees of freedom too low to compute residual variance.\n")
+}
+# Residual variance (within-day variance): 0.2074695 
+
+#' To compare within-subject variation in the relationship between the 
+#' positive (CS) and negative (UCS) components of State Self-Compassion, we 
+#' operationalized this relationship as the linear slope of UCS scores predicted 
+#' by CS scores, controlling for Negative Affect and context evaluation, both 
+#' coded at within-day, between-day, and between-subject levels.
+#' We conducted a Bayesian multilevel analysis after filtering the data to 
+#' ensure at least three notifications per day. This was followed by fitting a 
+#' mixed-effects model with random intercepts at the day level and random slopes 
+#' for CS at the subject level to account for the hierarchical structure of the 
+#' data.
+#' 
+#' The results show that the between-subject variance for the effect of CS on 
+#' UCS was relatively small (variance = 0.0279), suggesting that the 
+#' relationship between these components is generally stable across individuals. 
+#' In contrast, the within-subject variance at the day level was substantial 
+#' (variance = 0.0282), indicating notable daily fluctuations within individuals. 
+#' Furthermore, the residual variance, representing within-day variability, was 
+#' large (variance = 0.2075), suggesting that unmeasured momentary factors 
+#' contribute significantly to the variation in UCS.
+#' 
+#' These findings imply that while an inverse relationship between CS and UCS is 
+#' consistent at the between-subject level, significant within-subject 
+#' variability suggests that this relationship may be influenced by daily 
+#' changes in context and negative affect, underscoring the importance of 
+#' considering both momentary and day-level factors when testing the bipolar 
+#' continuum hypothesis.
+
+
+
+
+#######
+
+
+
+
+
+
+
+
+
+
+
+
+# Now, remove subjects who do not have enough days left after filtering
+# Define a threshold for minimum number of valid days (adjust based on your needs, e.g., 2 valid days)
+min_days_per_subject <- 2  # Adjust this value based on your requirement
+
+foo_filtered <- foo_filtered %>%
+  group_by(user_id) %>%
+  filter(n_distinct(bysubj_day) >= min_days_per_subject) %>%
+  ungroup()
+
+# Calculate raw slopes within each subject and day
+slopes_within <- foo_filtered %>%
+  group_by(user_id, bysubj_day) %>%
+  do(model = lm(nsc ~ psc + neg_aff, data = .)) %>%
+  mutate(slope = coef(model)[["psc"]]) %>%
+  ungroup()
+
+# Inspect the calculated slopes
+head(slopes_within)
+
+# Calculate variance of slopes within subjects (across days)
+within_var_raw <- slopes_within %>%
+  group_by(user_id) %>%
+  summarise(var_slope_within = var(slope, na.rm = TRUE)) %>%
+  summarise(mean_within_var = mean(var_slope_within, na.rm = TRUE))
+
+# Calculate variance of slopes between subjects
+between_var_raw <- var(slopes_within$slope, na.rm = TRUE)
+
+# Print raw variances
+cat("Mean variance of slopes within subjects (raw data):", within_var_raw$mean_within_var, "\n")
+# Mean variance of slopes within subjects (raw data): 2.117806 
+cat("Variance of slopes between subjects (raw data):", between_var_raw, "\n")
+# Variance of slopes between subjects (raw data): 1.937069 
+
+
+# Define weakly informative priors
+priors <- c(
+  prior(normal(0, 1), class = "sd", group = "user_id"),
+  prior(normal(0, 1), class = "sigma")  # For residuals
+)
+
+# Fit the model with adjusted priors
+model_adjusted <- brm(
+  slope ~ 1 + (1 + bysubj_day | user_id),
+  data = slopes_within,
+  family = student(),
+  prior = priors,
+  cores = 4,
+  iter = 2000,
+  warmup = 1000,
+  backend = "cmdstanr"
+)
+
+pp_check(model_adjusted) + xlim(-10, 10)
+
+# Extract the variance components
+variance_components <- VarCorr(model_adjusted)
+
+# Print the variance components to inspect
+print(variance_components)
+
+# Extract specific variances
+between_subject_variance <- variance_components$user_id$sd[1]^2  # Between-subject variance
+within_subject_variance <- attr(variance_components, "residual")$sd^2  # Within-subject variance
+
+cat("Between-subject variance:", between_subject_variance, "\n")
+cat("Within-subject variance:", within_subject_variance, "\n")
+
+
+
+# Get posterior samples for random effects
+posterior_samples <- as_draws_df(model_adjusted)
+
+# Between-subject variance (from user_id)
+between_subject_posterior <- posterior_samples[["sd_user_id__Intercept"]]^2
+
+# Residual variance (within-subject)
+within_subject_posterior <- posterior_samples[["sigma"]]^2
+
+# Compute 95% credible intervals
+between_subject_ci <- quantile(between_subject_posterior, probs = c(0.025, 0.975))
+within_subject_ci <- quantile(within_subject_posterior, probs = c(0.025, 0.975))
+
+cat("95% CI for between-subject variance:", between_subject_ci, "\n")
+cat("95% CI for within-subject variance:", within_subject_ci, "\n")
+
+between_subject_est <- quantile(between_subject_posterior, probs = c(0.5))
+within_subject_est <- quantile(within_subject_posterior, probs = c(0.5))
+c(between_subject_est, within_subject_est)
+
+
+# -------------------------------------------------------------------------
+
+
+
+m <- lmer(
+  znsc ~ na_moment + na_day + na_person + 
+    cntx_moment + cntx_day + cntx_person + 
+    (1 + na_moment + cntx_moment + na_day + cntx_day | user_id),
+  data = piel_data
+)
+
 mod_nsc <- brm(
   znsc ~ na_moment + na_day + na_person + 
     cntx_moment + cntx_day + cntx_person + 
@@ -269,7 +557,7 @@ mod_nsc <- brm(
     (1 + na_moment + cntx_moment + na_day + cntx_day | user_id),
   data = piel_data,
   family = asym_laplace(),
-  # backend = "cmdstanr",
+  backend = "cmdstanr",
   algorithm = "meanfield"
 )
 pp_check(mod_nsc)

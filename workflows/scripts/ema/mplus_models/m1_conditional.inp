@@ -1,0 +1,32 @@
+TITLE: Simplified conditional random variability model for momentary CS;
+DATA:
+  FILE = ema_data.dat;
+
+VARIABLE:
+  NAMES = user_id_numeric bysubj_day time_window CurAve_d FSMean;
+  USEVARIABLES = CurAve_d FSMean;
+  CLUSTER = user_id_numeric; ! Numeric ID for Level-2 clustering
+  BETWEEN = FSMean; ! FSMean (DERS) as a Level-2 predictor
+
+ANALYSIS:
+  TYPE = TWOLEVEL RANDOM; ! Multilevel random effects model
+  ESTIMATOR = BAYES; ! Bayesian estimation
+  CHAINS = 3; ! Number of MCMC chains
+  BITERATIONS = 100000 (5000); ! Maximum iterations and burn-in
+  CONVERGENCE = 1.10; ! Relax convergence criterion if needed
+  PROCESSORS = 2; ! Parallel computation
+  ALGORITHM = GIBBS(RW); ! Use Gibbs sampling with random walk
+
+MODEL:
+  %WITHIN%
+    CurAve_d; ! Momentary variation in CurAve_d (random variance modeled at Level 1)
+
+  %BETWEEN%
+    [CurAve_d] (gamma00); ! Between-level intercept of CS
+    [FSMean] (gamma20); ! Between-level intercept of FSMean (DERS)
+    CurAve_d (phi_0); ! Variance of between-level CS
+    FSMean ON CurAve_d; ! Predict DERS with CS at the between level
+
+OUTPUT:
+  TECH8 CINTERVAL(HPD); ! Request iteration history and HPD intervals
+

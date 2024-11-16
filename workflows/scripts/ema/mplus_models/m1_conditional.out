@@ -1,0 +1,502 @@
+Mplus VERSION 8.6 (Mac)
+MUTHEN & MUTHEN
+11/15/2024   2:58 PM
+
+INPUT INSTRUCTIONS
+
+  TITLE: Simplified conditional random variability model for momentary CS;
+  DATA:
+    FILE = ema_data.dat;
+
+  VARIABLE:
+    NAMES = user_id_numeric bysubj_day time_window CurAve_d FSMean;
+    USEVARIABLES = CurAve_d FSMean;
+    CLUSTER = user_id_numeric; ! Numeric ID for Level-2 clustering
+    BETWEEN = FSMean; ! FSMean (DERS) as a Level-2 predictor
+
+  ANALYSIS:
+    TYPE = TWOLEVEL RANDOM; ! Multilevel random effects model
+    ESTIMATOR = BAYES; ! Bayesian estimation
+    CHAINS = 3; ! Number of MCMC chains
+    BITERATIONS = 100000 (5000); ! Maximum iterations and burn-in
+    CONVERGENCE = 1.10; ! Relax convergence criterion if needed
+    PROCESSORS = 2; ! Parallel computation
+    ALGORITHM = GIBBS(RW); ! Use Gibbs sampling with random walk
+
+  MODEL:
+    %WITHIN%
+      CurAve_d; ! Momentary variation in CurAve_d (random variance modeled at Level 1)
+
+    %BETWEEN%
+      [CurAve_d] (gamma00); ! Between-level intercept of CS
+      [FSMean] (gamma20); ! Between-level intercept of FSMean (DERS)
+      CurAve_d (phi_0); ! Variance of between-level CS
+      FSMean ON CurAve_d; ! Predict DERS with CS at the between level
+
+  OUTPUT:
+    TECH8 CINTERVAL(HPD); ! Request iteration history and HPD intervals
+
+
+
+
+*** WARNING in MODEL command
+  TYPE=RANDOM is used to declare random effect variables in the model.
+  No random effect variables were found.  TYPE=RANDOM will be ignored.
+   1 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+
+
+
+Simplified conditional random variability model for momentary CS;
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Number of observations                                       12382
+
+Number of dependent variables                                    1
+Number of independent variables                                  1
+Number of continuous latent variables                            0
+
+Observed dependent variables
+
+  Continuous
+   FSMEAN
+
+Observed independent variables
+   CURAVE_D
+
+Variables with special functions
+
+  Cluster variable      USER_ID_
+
+  Between variables
+   FSMEAN
+
+
+Estimator                                                    BAYES
+Specifications for Bayesian Estimation
+  Point estimate                                            MEDIAN
+  Number of Markov chain Monte Carlo (MCMC) chains               3
+  Random seed for the first chain                                0
+  Starting value information                           UNPERTURBED
+  Algorithm used for Markov chain Monte Carlo            GIBBS(RW)
+  Convergence criterion                                  0.500D-01
+  Maximum number of iterations                              100000
+  K-th iteration used for thinning                               1
+
+Input data file(s)
+  ema_data.dat
+Input data format  FREE
+
+
+SUMMARY OF DATA
+
+     Number of clusters                        326
+
+       Size (s)    Cluster ID with Size s
+
+         12        160 174
+         13        120
+         14        284
+         15        175
+         16        224 38
+         17        150 297
+         18        162
+         19        192 99 308
+         21        191
+         22        177
+         23        145 255 259
+         24        124
+         25        272 91 180 304 204 309 320
+         26        129 128
+         27        3 234 247
+         28        104 277 144 52 322
+         29        121 6
+         30        20 32 33
+         31        166 278 279 271 59
+         32        220 221 23 19 61 254 39 172 314 122 213
+         33        223 241 246 203
+         34        106 240 194 16 18 300 30 15 161 185 57 275
+         35        276 74 117 133 137 209 211 35 7 268 100 56 126
+         36        123 243 245 216 87 130 285 288 44 257 205 260 261 228
+                   188 135
+         37        134 86 14 24 94 26 190 295 296 2 103 225 265 22 195
+                   317 49 84
+         38        65 148 299 181 68 306 227 282 34 250 319 251 53
+         39        231 232 153 81 83 280 281 242 63 85 168 206 170 131
+                   111 112 58 66 141 88 4 73 269 51 230 326
+         40        196 198 199 235 236 200 37 147 47 149 108 287 210 248
+                   42 156 252 184 302 157 187 50 136 313 43 264 118 167
+                   229 325 119
+         41        8 93 173 143 238 239 116 45 215 178 324 244 109
+         42        186 155 270 90 11 274 158 159 212 139 310 214 29 315
+                   82 218 152 321 182 89 154 292
+         43        293 76 267 151 298 193 80 301 219 62 305 1 176 97 64
+                   21 101 17 316 9 208 105 125 60 10 289 75
+         44        146 283 40 67 41 179 69 290 291 249 70 294 127 71 5
+                   107 25 258 132 189 303 31 262 55 307 92 115 79 163 138
+                   12 233 140 318 95 201 202 171 323 96 27 98
+         45        72 110 273 102 226 46 207 113 114 253 28 48 256 311
+                   312 13 164 286 165 197 237 78 263 217 36 183 142 169
+                   222
+         54        54
+         61        266
+         65        77
+
+
+
+
+UNIVARIATE SAMPLE STATISTICS
+
+
+     UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+         Variable/         Mean/     Skewness/   Minimum/ % with                Percentiles
+        Sample Size      Variance    Kurtosis    Maximum  Min/Max      20%/60%    40%/80%    Median
+
+     FSMEAN                0.014       0.311      -1.759    0.61%      -0.957     -0.355     -0.051
+             326.000       0.987      -0.633       2.735    0.61%       0.247      0.889
+     CURAVE_D              0.006      -0.400      -3.713    0.39%      -0.867     -0.297     -0.013
+           12382.000       0.999       0.330       1.980    3.00%       0.272      0.841
+
+
+THE MODEL ESTIMATION TERMINATED NORMALLY
+
+     USE THE FBITERATIONS OPTION TO INCREASE THE NUMBER OF ITERATIONS BY A FACTOR
+     OF AT LEAST TWO TO CHECK CONVERGENCE AND THAT THE PSR VALUE DOES NOT INCREASE.
+
+
+
+MODEL FIT INFORMATION
+
+Number of Free Parameters                               6
+
+Bayesian Posterior Predictive Checking using Chi-Square
+
+          95% Confidence Interval for the Difference Between
+          the Observed and the Replicated Chi-Square Values
+
+                                -10.140            11.998
+
+          Posterior Predictive P-Value              0.506
+
+Information Criteria
+
+          Deviance (DIC)                        25983.126
+          Estimated Number of Parameters (pD)     323.432
+
+
+
+MODEL RESULTS
+
+                                Posterior  One-Tailed         95% C.I.
+                    Estimate       S.D.      P-Value   Lower 2.5%  Upper 2.5%  Significance
+
+Within Level
+
+ Variances
+    CURAVE_D           0.436       0.006      0.000       0.425       0.448      *
+
+Between Level
+
+ FSMEAN     ON
+    CURAVE_D          -0.769       0.060      0.000      -0.890      -0.657      *
+
+ Means
+    CURAVE_D          -0.002       0.043      0.477      -0.084       0.082
+
+ Intercepts
+    FSMEAN             0.013       0.045      0.387      -0.075       0.100
+
+ Variances
+    CURAVE_D           0.580       0.047      0.000       0.492       0.675      *
+
+ Residual Variances
+    FSMEAN             0.659       0.054      0.000       0.560       0.770      *
+
+
+CREDIBILITY INTERVALS OF MODEL RESULTS
+
+                  Lower .5%  Lower 2.5%    Lower 5%    Estimate    Upper 5%  Upper 2.5%   Upper .5%
+
+Within Level
+
+ Variances
+    CURAVE_D         0.422       0.425       0.427       0.436       0.446       0.448       0.451
+
+Between Level
+
+ FSMEAN   ON
+    CURAVE_D        -0.920      -0.890      -0.872      -0.769      -0.675      -0.657      -0.613
+
+ Means
+    CURAVE_D        -0.113      -0.084      -0.069      -0.002       0.069       0.082       0.107
+
+ Intercepts
+    FSMEAN          -0.103      -0.075      -0.061       0.013       0.086       0.100       0.127
+
+ Variances
+    CURAVE_D         0.471       0.492       0.507       0.580       0.659       0.675       0.710
+
+ Residual Variances
+    FSMEAN           0.533       0.560       0.579       0.659       0.752       0.770       0.810
+
+
+TECHNICAL 1 OUTPUT
+
+
+     PARAMETER SPECIFICATION FOR WITHIN
+
+
+           NU
+              CURAVE_D
+              ________
+                    0
+
+
+           LAMBDA
+              CURAVE_D
+              ________
+ CURAVE_D           0
+
+
+           THETA
+              CURAVE_D
+              ________
+ CURAVE_D           0
+
+
+           ALPHA
+              CURAVE_D
+              ________
+                    0
+
+
+           BETA
+              CURAVE_D
+              ________
+ CURAVE_D           0
+
+
+           PSI
+              CURAVE_D
+              ________
+ CURAVE_D           1
+
+
+     PARAMETER SPECIFICATION FOR BETWEEN
+
+
+           NU
+              FSMEAN        CURAVE_D
+              ________      ________
+                    0             0
+
+
+           LAMBDA
+              FSMEAN        CURAVE_D
+              ________      ________
+ FSMEAN             0             0
+ CURAVE_D           0             0
+
+
+           THETA
+              FSMEAN        CURAVE_D
+              ________      ________
+ FSMEAN             0
+ CURAVE_D           0             0
+
+
+           ALPHA
+              FSMEAN        CURAVE_D
+              ________      ________
+                    2             3
+
+
+           BETA
+              FSMEAN        CURAVE_D
+              ________      ________
+ FSMEAN             0             4
+ CURAVE_D           0             0
+
+
+           PSI
+              FSMEAN        CURAVE_D
+              ________      ________
+ FSMEAN             5
+ CURAVE_D           0             6
+
+
+     STARTING VALUES FOR WITHIN
+
+
+           NU
+              CURAVE_D
+              ________
+                0.000
+
+
+           LAMBDA
+              CURAVE_D
+              ________
+ CURAVE_D       1.000
+
+
+           THETA
+              CURAVE_D
+              ________
+ CURAVE_D       0.000
+
+
+           ALPHA
+              CURAVE_D
+              ________
+                0.000
+
+
+           BETA
+              CURAVE_D
+              ________
+ CURAVE_D       0.000
+
+
+           PSI
+              CURAVE_D
+              ________
+ CURAVE_D       0.499
+
+
+     STARTING VALUES FOR BETWEEN
+
+
+           NU
+              FSMEAN        CURAVE_D
+              ________      ________
+                0.000         0.000
+
+
+           LAMBDA
+              FSMEAN        CURAVE_D
+              ________      ________
+ FSMEAN         1.000         0.000
+ CURAVE_D       0.000         1.000
+
+
+           THETA
+              FSMEAN        CURAVE_D
+              ________      ________
+ FSMEAN         0.000
+ CURAVE_D       0.000         0.000
+
+
+           ALPHA
+              FSMEAN        CURAVE_D
+              ________      ________
+                0.004         0.000
+
+
+           BETA
+              FSMEAN        CURAVE_D
+              ________      ________
+ FSMEAN         0.000         0.000
+ CURAVE_D       0.000         0.000
+
+
+           PSI
+              FSMEAN        CURAVE_D
+              ________      ________
+ FSMEAN         0.485
+ CURAVE_D       0.000         0.499
+
+
+
+     PRIORS FOR ALL PARAMETERS            PRIOR MEAN      PRIOR VARIANCE     PRIOR STD. DEV.
+
+     Parameter 1~IG(-1.000,0.000)          infinity            infinity            infinity
+     Parameter 2~N(0.000,infinity)           0.0000            infinity            infinity
+     Parameter 3~N(0.000,infinity)           0.0000            infinity            infinity
+     Parameter 4~N(0.000,infinity)           0.0000            infinity            infinity
+     Parameter 5~IG(-1.000,0.000)          infinity            infinity            infinity
+     Parameter 6~IG(-1.000,0.000)          infinity            infinity            infinity
+
+
+TECHNICAL 8 OUTPUT
+
+
+   TECHNICAL 8 OUTPUT FOR BAYES ESTIMATION
+
+     CHAIN    BSEED
+     1        0
+     2        285380
+     3        253358
+
+                     POTENTIAL       PARAMETER WITH
+     ITERATION    SCALE REDUCTION      HIGHEST PSR
+     100              1.000               1
+     200              1.011               4
+     300              1.005               4
+     400              1.003               4
+     500              1.001               4
+     600              1.000               4
+     700              1.000               1
+     800              1.000               5
+     900              1.001               5
+     1000             1.000               1
+     1100             1.000               1
+     1200             1.000               1
+     1300             1.000               1
+     1400             1.000               1
+     1500             1.000               1
+     1600             1.000               5
+     1700             1.000               5
+     1800             1.000               5
+     1900             1.000               2
+     2000             1.000               4
+     2100             1.000               4
+     2200             1.000               4
+     2300             1.000               2
+     2400             1.000               2
+     2500             1.000               2
+     2600             1.000               2
+     2700             1.000               1
+     2800             1.000               1
+     2900             1.000               1
+     3000             1.000               1
+     3100             1.000               4
+     3200             1.000               4
+     3300             1.000               4
+     3400             1.000               1
+     3500             1.000               1
+     3600             1.000               5
+     3700             1.000               5
+     3800             1.000               5
+     3900             1.000               5
+     4000             1.000               5
+     4100             1.000               2
+     4200             1.000               5
+     4300             1.000               1
+     4400             1.000               1
+     4500             1.000               1
+     4600             1.000               5
+     4700             1.000               5
+     4800             1.000               5
+     4900             1.000               5
+     5000             1.000               5
+
+
+     Beginning Time:  14:58:51
+        Ending Time:  14:58:57
+       Elapsed Time:  00:00:06
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2021 Muthen & Muthen

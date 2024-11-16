@@ -1,0 +1,45 @@
+TITLE: Simplified conditional model focusing on UCS variability;
+DATA:
+  FILE = ema_data.dat;
+
+VARIABLE:
+  NAMES = user_id_numeric bysubj_day time_window CurAve_d FSMean;
+  USEVARIABLES = CurAve_d FSMean;
+  CLUSTER = user_id_numeric; ! Numeric ID for Level-2 clustering
+  BETWEEN = FSMean; ! FSMean (DERS) as a Level-2 predictor
+
+ANALYSIS:
+  TYPE = TWOLEVEL RANDOM; ! Multilevel random effects model
+  ESTIMATOR = BAYES; ! Bayesian estimation
+  CHAINS = 3; ! Number of MCMC chains
+  BITERATIONS = 100000 (5000); ! Maximum iterations and burn-in
+  PROCESSORS = 2; ! Parallel computation
+  ALGORITHM = GIBBS(RW); ! Use Gibbs sampling with random walk
+
+MODEL:
+  %WITHIN%
+    LOGV | CurAve_d; ! Log residual variance modeled as random coefficients
+
+  %BETWEEN%
+    [CurAve_d*0] (gamma00); ! Informative prior for intercept of CS (N(0, 1))
+    [LOGV*-1] (gamma10);    ! Informative prior for intercept of log residual variance (N(-1, 1))
+    [FSMean*0] (gamma20);   ! Informative prior for intercept of FSMean (DERS, N(0, 1))
+
+    CurAve_d (phi_0); ! Variance of between-level CS
+    LOGV (phi_1);     ! Variance of between-level log residual variance
+
+    FSMean ON CurAve_d LOGV (beta1 beta2); ! Predict DERS with average CS and variability
+
+MODEL PRIORS:
+    phi_0 ~ IG(1, 0.1);   ! Informative inverse-gamma prior for variance of average CS
+    phi_1 ~ IG(1, 0.1);   ! Informative inverse-gamma prior for variance of variability
+    beta1 ~ N(0, 1);      ! Informative prior for beta1
+    beta2 ~ N(0, 1);      ! Informative prior for beta2
+
+MODEL CONSTRAINT:
+  NEW (mean_v var_v); ! Derived parameters for within-level residual variance
+  mean_v = exp(gamma10 + (1/2)*phi_1); ! Mean of the within-level variance
+  var_v = exp(2*gamma10 + phi_1)*(exp(phi_1)-1); ! Variance of the within-level variance
+
+OUTPUT:
+  TECH8 CINTERVAL(HPD); ! Request iteration history and HPD intervals

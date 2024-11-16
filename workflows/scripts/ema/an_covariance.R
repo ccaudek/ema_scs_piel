@@ -8,6 +8,10 @@
 # 👉 
 
 suppressPackageStartupMessages({
+  library(here)
+  library(tidyverse)
+  library(brms)
+  library(cmdstanr)
   library("performance")
   library("loo")
   library("coda")
@@ -17,6 +21,10 @@ suppressPackageStartupMessages({
 piel_data <- readRDS(
   here::here("data", "prep", "ema", "cleaned_piel_data.RDS")
 )
+
+length(unique(piel_data$user_id))
+# [1] 314
+
 
 sc <- (c(-piel_data$znsc, piel_data$zpsc))
 valence <- 
@@ -46,7 +54,8 @@ mod_ancov <- brm(
     (1 + valence + na_moment + cntx_moment + na_day + cntx_day | user_id),
   data = mydat,
   family = asym_laplace(),
-  algorithm = "meanfield"
+  backend = "cmdstanr"
+  # algorithm = "meanfield"
 )
 
 pp_check(mod_ancov)
@@ -60,6 +69,8 @@ r2_bayes(mod_ancov)
 
 loo_1 <- loo(mod_ancov)
 plot(loo_1)
+
+mod_ancov <- add_criterion(mod_ancov, "loo")
 
 
 tab_model(mod_ancov)
@@ -125,12 +136,15 @@ mod2_ancov <- brm(
     (1 + valence + na_moment + cntx_moment + na_day + cntx_day | user_id),
   data = mydat,
   family = asym_laplace(),
+  backend = "cmdstanr",
   algorithm = "meanfield"
 )
 
 loo_2 <- loo(mod2_ancov)
-m1 <- add_criterion(m1, "loo")
+mod2_ancov <- add_criterion(mod2_ancov, "loo")
 
+comp <- loo_compare(mod_ancov, mod2_ancov)
+print(comp, digits = 2)
 
 comp <- loo_compare(loo_1, loo_2)
 print(comp, digits = 2)

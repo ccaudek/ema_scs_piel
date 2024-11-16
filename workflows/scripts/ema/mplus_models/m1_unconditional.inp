@@ -1,0 +1,26 @@
+TITLE: Unconditional random variability model for momentary CS;
+DATA: FILE = ema_data_for_mplus.dat;
+VARIABLE:
+NAMES = user_id bysubj_day time_window CurAve_d FSMean; 
+USEVARIABLES = CurAve_d;
+CLUSTER = user_id; ! observations nested within individuals (Level-2)
+ANALYSIS:
+TYPE = TWOLEVEL RANDOM; ! Multilevel random effects model
+ESTIMATOR = BAYES; ! Bayesian estimation
+CHAINS = 3; ! Number of MCMC chains
+BITERATIONS = 50000 (2000); ! Max and minimum number of iterations per chain
+PROCESSORS = 2; ! Number of processors for parallel computation
+MODEL:
+%WITHIN% ! Within-level (momentary-level variability)
+LOGV | CurAve_d; ! Log residual variance modeled as random coefficients
+%BETWEEN% ! Between-level (person-level variability)
+[CurAve_d] (gamma00); ! Intercept for between-level CS
+[LOGV] (gamma10); ! Intercept for log residual variance
+CurAve_d (phi_0); ! Variance of between-level CS
+LOGV (phi_1); ! Variance of between-level log residual variance
+CurAve_d WITH LOGV (phi_10); ! Covariance between CS and log residual variance
+MODEL CONSTRAINT:
+NEW (mean_v var_v); ! Derived parameters for within-level residual variance
+mean_v = exp(gamma10 + (1/2)*phi_1); ! Mean of the within-level variance
+var_v = exp(2*gamma10 + phi_1)*(exp(phi_1)-1); ! Variance of the within-level variance
+OUTPUT: TECH8 CINTERVAL(HPD); ! Request iteration history and 95% HPD intervals
